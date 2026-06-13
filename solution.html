@@ -33,6 +33,9 @@
             --font-size-lg: 18px;
             --font-size-xl: 22px;
             --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            --hover-card-bg: #FFF8ED;
+            --hover-button-bg: #FFF8ED;
+            --hover-link-bg: #FFF8ED;
         }
 
         * {
@@ -95,7 +98,7 @@
         }
 
         .back-link:hover {
-            background: rgba(122, 93, 56, 0.08);
+            background: var(--hover-link-bg);
         }
 
         .back-link svg {
@@ -103,24 +106,17 @@
             height: 16px;
         }
 
-        .solution-header {
-            background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 30%, #D97706 60%, #B45309 100%);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-xl);
-            margin-bottom: var(--spacing-xl);
-            text-align: center;
-            color: white;
-        }
-
-        .solution-title {
-            font-size: var(--font-size-xl);
+        .article-title {
+            font-size: 20px;
             font-weight: 600;
+            color: var(--color-text-primary);
             margin-bottom: var(--spacing-sm);
         }
 
-        .solution-subtitle {
-            font-size: var(--font-size-sm);
-            opacity: 0.9;
+        .article-subtitle {
+            font-size: 13px;
+            color: var(--color-text-tertiary);
+            margin-bottom: var(--spacing-lg);
         }
 
         .solution-card {
@@ -228,6 +224,15 @@
             line-height: 1.6;
         }
 
+        /* 富文本内容中图片自适应 */
+        .rich-content { overflow-x: hidden; }
+        .rich-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-md);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
         .contact-section {
             text-align: center;
             padding: var(--spacing-xl);
@@ -275,6 +280,171 @@
             height: 18px;
         }
 
+        /* 问题解决确认区域 */
+        .feedback-section {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #E2DDD3;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .feedback-header {
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .feedback-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--color-text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .feedback-title svg {
+            width: 22px;
+            height: 22px;
+            color: #F59E0B;
+        }
+
+        .feedback-hint {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-tertiary);
+            line-height: 1.6;
+            padding: 12px 16px;
+            background: #FFFBEB;
+            border: 1px solid #FEF3C7;
+            border-radius: var(--radius-md);
+            color: #92400E;
+        }
+
+        .feedback-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .btn-resolved {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 14px 24px;
+            background: #10B981;
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-resolved:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-resolved svg { width: 18px; height: 18px; }
+
+        .btn-unresolved {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 14px 24px;
+            background: #ffffff;
+            color: var(--color-text-secondary);
+            border: 2px solid #D4CBB8;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-unresolved:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            background: var(--hover-button-bg);
+        }
+
+        .btn-unresolved:active {
+            transform: translateY(0);
+        }
+
+        .btn-unresolved svg { width: 18px; height: 18px; }
+
+        /* 联系客服展开区域 */
+        .contact-panel {
+            display: none;
+            margin-top: var(--spacing-lg);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid #E2DDD3;
+            text-align: center;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .contact-panel.show { display: block; }
+
+        .contact-panel-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .contact-panel-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-lg);
+            line-height: 1.6;
+        }
+
+        /* 解决成功反馈 */
+        .success-feedback {
+            display: none;
+            text-align: center;
+            padding: var(--spacing-lg);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .success-feedback.show { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        .success-icon svg { width: 32px; height: 32px; color: #10B981; }
+
+        .success-text { font-size: var(--font-size-lg); font-weight: 600; color: #10B981; margin-bottom: var(--spacing-xs); }
+        .success-desc { font-size: var(--font-size-sm); color: var(--color-text-tertiary); }
+
         .footer {
             text-align: center;
             padding: var(--spacing-xl);
@@ -303,31 +473,53 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 18 9 12 15 6"/>
                 </svg>
-                返回问题列表
+                返回上级
             </a>
         </div>
 
-        <!-- Solution Header -->
-        <section class="solution-header">
-            <h1 class="solution-title" id="solutionTitle">解决方案</h1>
-            <p class="solution-subtitle" id="solutionSubtitle">以下是针对您问题的详细解决方案</p>
-        </section>
-
         <!-- Solution Content -->
+        <h1 class="article-title" id="solutionTitle">解决方案</h1>
+        <p class="article-subtitle" id="solutionSubtitle">以下是针对您问题的详细解决方案</p>
         <section class="solution-card" id="solutionContent">
             <!-- Solution will be populated by JavaScript -->
         </section>
 
-        <!-- Contact Section -->
-        <section class="contact-section">
-            <h2 class="contact-title">问题仍未解决？</h2>
-            <p class="contact-desc">如果以上解决方案未能解决您的问题，我们的专业客服团队随时为您提供帮助</p>
-            <button class="btn-primary" id="contactBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                </svg>
-                联系人工客服
-            </button>
+        <!-- 问题解决确认 -->
+        <section class="feedback-section" id="feedbackSection">
+            <div class="feedback-header">
+                <h2 class="feedback-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    问题解决确认
+                </h2>
+                <div class="feedback-hint">
+                    请确认你已经按照前面的步骤完成操作。<br>
+                    如果问题已经解决，请点击「问题已解决」；<br>
+                    如果问题仍未解决，请点击「仍有问题」获取进一步支持。
+                </div>
+            </div>
+
+            <!-- 按钮区域 -->
+            <div class="feedback-buttons" id="feedbackButtons">
+                <button class="btn-resolved" id="btnResolved">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    是，问题已解决
+                </button>
+                <button class="btn-unresolved" id="btnUnresolved">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    否，问题未解决，联系服务台
+                </button>
+            </div>
+
+            <!-- 联系客服区域已移除，点击「否」将直接跳转服务台链接 -->
+
+            <!-- 解决成功反馈（默认隐藏） -->
+            <div class="success-feedback" id="successFeedback">
+                <div class="success-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="success-text">问题已解决</div>
+                <div class="success-desc">感谢您的使用，祝您工作顺利！</div>
+            </div>
         </section>
 
         <!-- Footer -->
@@ -337,211 +529,230 @@
     </main>
 
     <script>
-        // ========== 详细日志工具 ==========
-        const Logger = {
-            log(tag, msg, data) {
-                const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
-                console.log(`[${time}] [${tag}] ${msg}`, data || '');
-            },
-            info(msg, data) { this.log('INFO', msg, data); },
-            warn(msg, data) { this.log('WARN', msg, data); },
-            error(msg, data) { this.log('ERROR', msg, data); }
-        };
+        // 应用外观设置（从 localStorage 读取）
+        (function() {
+            try {
+                var saved = localStorage.getItem('qaui_appearance_settings');
+                if (!saved) return;
+                var s = JSON.parse(saved);
+                if (s.hoverCardBg) document.documentElement.style.setProperty('--hover-card-bg', s.hoverCardBg);
+                if (s.hoverButtonBg) document.documentElement.style.setProperty('--hover-button-bg', s.hoverButtonBg);
+                if (s.hoverLinkBg) document.documentElement.style.setProperty('--hover-link-bg', s.hoverLinkBg);
+            } catch(e) {}
+        })();
 
-        // ========== DataStore - 数据存储模块 ==========
+        // ========== 数据存储模块 ==========
         const DataStore = {
-            data: null,
-            
-            load() {
-                Logger.info('========== DataStore.load() 开始执行 ==========');
-                Logger.info('尝试从 localStorage 加载数据...');
-                
-                const storageKey = 'qaui_admin_data';
-                const d = localStorage.getItem(storageKey);
-                Logger.info('localStorage.getItem() 返回值:', d ? `数据长度=${d.length}` : 'null');
-                
-                if (d) {
-                    Logger.info('检测到 localStorage 有数据，尝试解析 JSON...');
-                    try {
-                        this.data = JSON.parse(d);
-                        Logger.info('JSON.parse() 成功!', {
-                            questionTypes数量: this.data.questionTypes?.length,
-                            questions数量: this.data.questions?.length,
-                            hotQuestions数量: this.data.hotQuestions?.length
-                        });
-                    } catch (e) {
-                        Logger.error('JSON.parse() 失败，回退到默认数据', e.message);
-                        this.data = this.getDefaultData();
+            questions: [],
+            currentQuestion: null,
+
+            // 加载问题列表（轻量，不含 content）
+            async load() {
+                try {
+                    const res = await fetch('http://localhost:3000/api/questions');
+                    this.questions = await res.json() || [];
+                } catch (error) {
+                    console.error('数据加载失败:', error);
+                    this.questions = [];
+                }
+            },
+
+            // 加载单条问题详情（含 content，用于文章页面）
+            async loadQuestionDetail(id) {
+                try {
+                    const res = await fetch('http://localhost:3000/api/questions/' + id);
+                    if (res.ok) {
+                        this.currentQuestion = await res.json();
+                        return this.currentQuestion;
                     }
-                } else {
-                    Logger.warn('localStorage 没有数据，使用默认数据');
-                    this.data = this.getDefaultData();
+                } catch (error) {
+                    console.error('加载问题详情失败:', error);
                 }
-                
-                Logger.info('DataStore.load() 执行完成，当前数据:', this.data);
-                return this.data;
+                return null;
             },
-            
-            getDefaultData() {
-                Logger.info('生成默认数据...');
-                return {
-                    questionTypes: [
-                        { id: 'type_1', name: '产品咨询', icon: 'ri-home-line', order: 1, status: true },
-                        { id: 'type_2', name: '售后服务', icon: 'ri-customer-service-line', order: 2, status: true },
-                        { id: 'type_3', name: '物流配送', icon: 'ri-truck-line', order: 3, status: true },
-                        { id: 'type_4', name: '促销活动', icon: 'ri-money-cny-circle-line', order: 4, status: true }
-                    ],
-                    questions: [
-                        { id: 'q_1', typeId: 'type_1', parentId: null, title: '衣柜产品', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
-                        { id: 'q_1_1', typeId: 'type_1', parentId: 'q_1', title: '衣柜材质选择', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
-                        { id: 'q_1_1_1', typeId: 'type_1', parentId: 'q_1_1', title: '实木衣柜优缺点', attribute: 'article', contentType: 'richtext', content: '<h3>实木衣柜优缺点分析</h3><p>实木衣柜天然环保质感好，但价格较高需定期保养。</p><ul><li>优点：天然环保、使用寿命长</li><li>缺点：价格较高、需要定期保养</li></ul>', hyperlink: null, order: 1 },
-                        { id: 'q_1_1_2', typeId: 'type_1', parentId: 'q_1_1', title: '板材衣柜对比', attribute: 'article', contentType: 'hyperlink', content: null, hyperlink: 'https://example.com/wardrobe', order: 2 },
-                        { id: 'q_2', typeId: 'type_2', parentId: null, title: '订单查询', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
-                        { id: 'q_2_1', typeId: 'type_2', parentId: 'q_2', title: '如何查询订单状态', attribute: 'article', contentType: 'richtext', content: '<h3>如何查询订单状态</h3><p>登录后进入订单中心即可查看订单状态。</p><ol><li>登录账号</li><li>进入订单中心</li><li>选择订单查看详情</li></ol>', hyperlink: null, order: 1 },
-                        { id: 'q_3', typeId: 'type_3', parentId: null, title: '配送信息', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
-                        { id: 'q_3_1', typeId: 'type_3', parentId: 'q_3', title: '配送范围查询', attribute: 'article', contentType: 'hyperlink', content: null, hyperlink: 'https://example.com/delivery', order: 1 }
-                    ],
-                    hotQuestions: []
-                };
-            },
-            
+
             getQuestionById(id) {
-                Logger.info(`getQuestionById() 查找问题 ID: ${id}`);
-                if (!this.data) {
-                    Logger.warn('this.data 为空，先调用 load()');
-                    this.load();
-                }
-                const question = this.data.questions.find(q => q.id === id) || null;
-                if (question) {
-                    Logger.info(`找到问题:`, question);
-                } else {
-                    Logger.warn(`未找到 ID=${id} 的问题`);
-                }
-                return question;
+                return this.questions.find(q => q.id === id) || null;
+            },
+            
+            getChildrenByParent(parentId) {
+                return this.questions.filter(q => q.parentId === parentId).sort((a, b) => a.order - b.order);
             }
         };
 
-        // ========== URL 参数解析 ==========
+        // URL 参数解析
         function getParams() {
-            Logger.info('========== getParams() 开始执行 ==========');
             const params = new URLSearchParams(window.location.search);
-            const result = {
-                category: params.get('category') || 'order',
+            return {
+                category: params.get('category') || null,
                 question: params.get('question') || null
             };
-            Logger.info('URL 参数解析结果:', result);
-            Logger.info('完整 URL:', window.location.href);
-            return result;
         }
 
-        // ========== 渲染解决方案 ==========
-        function renderSolution() {
-            Logger.info('========== renderSolution() 开始执行 ==========');
+        // 渲染解决方案
+        async function renderSolution() {
+            const { question, category } = getParams();
             
-            try {
-                // 1. 获取 URL 参数
-                Logger.info('步骤1: 解析 URL 参数');
-                const { question } = getParams();
-                Logger.info(`当前 question 参数: ${question || 'null'}`);
-                
-                // 2. 加载数据
-                Logger.info('步骤2: 加载数据');
-                DataStore.load();
-                
-                // 3. 查找问题
-                Logger.info('步骤3: 查找问题详情');
-                const q = question ? DataStore.getQuestionById(question) : null;
-                Logger.info(`查找到的问题对象:`, q);
-                
-                // 4. 获取 DOM 元素
-                Logger.info('步骤4: 获取 DOM 元素');
-                const titleEl = document.getElementById('solutionTitle');
-                const subtitleEl = document.getElementById('solutionSubtitle');
-                const contentEl = document.getElementById('solutionContent');
-                const backLinkEl = document.getElementById('backToSubquestion');
-                
-                Logger.info('DOM 元素获取结果:', {
-                    solutionTitle: titleEl ? '存在' : '不存在',
-                    solutionSubtitle: subtitleEl ? '存在' : '不存在',
-                    solutionContent: contentEl ? '存在' : '不存在',
-                    backToSubquestion: backLinkEl ? '存在' : '不存在'
-                });
-                
-                // 5. 如果没找到问题
-                if (!q) {
-                    Logger.warn('未找到问题，显示默认内容');
-                    titleEl.textContent = '问题详情';
-                    subtitleEl.textContent = '请从问题列表选择要查看的问题';
-                    contentEl.innerHTML = '<div class="solution-section"><div class="solution-tips"><div class="tips-title">提示</div><div class="tips-content">请从左侧问题列表选择要查看的问题。</div></div></div>';
-                    Logger.info('========== renderSolution() 执行完成(无问题) ==========');
-                    return;
+            await DataStore.load();
+            
+            const titleEl = document.getElementById('solutionTitle');
+            const subtitleEl = document.getElementById('solutionSubtitle');
+            const contentEl = document.getElementById('solutionContent');
+            const backLinkEl = document.getElementById('backToSubquestion');
+
+            // 如果没找到问题ID，显示提示
+            if (!question) {
+                titleEl.textContent = '请选择问题';
+                subtitleEl.textContent = '请从问题列表选择要查看的问题';
+                contentEl.innerHTML = `
+                    <div class="solution-section">
+                        <div class="solution-tips">
+                            <div class="tips-title">提示</div>
+                            <div class="tips-content">请从问题列表选择要查看的问题。</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 查找问题（从轻量列表获取基本信息）
+            var q = DataStore.getQuestionById(question);
+
+            if (!q) {
+                titleEl.textContent = '问题不存在';
+                subtitleEl.textContent = '无法找到指定的问题';
+                contentEl.innerHTML = `
+                    <div class="solution-section">
+                        <div class="solution-tips">
+                            <div class="tips-title">提示</div>
+                            <div class="tips-content">无法找到指定的问题，请返回重新选择。</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // 如果是文章类型，通过详情接口获取完整内容（含 base64 图片）
+            if (q.attribute === 'article') {
+                var detail = await DataStore.loadQuestionDetail(question);
+                if (detail && detail.content) {
+                    q = detail; // 用详情数据覆盖（包含 content）
                 }
-                
-                // 6. 更新页面标题
-                Logger.info('步骤6: 更新页面标题和副标题');
-                titleEl.textContent = q.title;
-                subtitleEl.textContent = '问题详情';
-                Logger.info(`更新后的标题: ${q.title}`);
-                
-                // 7. 更新返回链接
-                Logger.info('步骤7: 更新返回链接');
-                const params = new URLSearchParams(window.location.search);
-                const category = params.get('category') || 'order';
-                backLinkEl.href = 'subquestion.html?category=' + category;
-                Logger.info(`返回链接已更新: ${backLinkEl.href}`);
-                
-                // 8. 渲染内容
-                Logger.info('步骤8: 根据问题类型渲染内容');
-                Logger.info(`问题属性: attribute=${q.attribute}, contentType=${q.contentType}`);
-                
-                if (q.attribute === 'article') {
-                    if (q.contentType === 'hyperlink' && q.hyperlink) {
-                        // 超链接类型
-                        Logger.info('渲染类型: 超链接，将跳转到:', q.hyperlink);
-                        contentEl.innerHTML = '<div class="solution-section"><h2 class="section-title">正在跳转...</h2><div class="solution-tips"><div class="tips-title">外部链接</div><div class="tips-content">即将跳转到：' + q.hyperlink + '</div></div></div>';
-                        setTimeout(function() { 
-                            Logger.info('执行 window.open 跳转到:', q.hyperlink);
-                            window.open(q.hyperlink, '_blank'); 
-                        }, 1500);
-                    } else if (q.content) {
-                        // 富文本类型
-                        Logger.info('渲染类型: 富文本内容，长度:', q.content.length);
-                        contentEl.innerHTML = '<div class="solution-section"><h2 class="section-title">文章内容</h2><div class="rich-content" style="line-height:1.8;font-size:16px;color:var(--color-text-primary);">' + q.content + '</div></div>';
-                    } else {
-                        Logger.warn('渲染类型: 文章但没有内容');
-                        contentEl.innerHTML = '<div class="solution-section"><div class="solution-tips"><div class="tips-title">提示</div><div class="tips-content">该问题暂无详细内容。</div></div></div>';
-                    }
+            }
+            
+            // 返回上级：根据父级动态计算
+            if (category) {
+                if (q.parentId && q.parentId !== 'root') {
+                    backLinkEl.href = 'subquestion.html?category=' + category + '&path=' + q.parentId;
                 } else {
-                    // 目录类型
-                    Logger.info('渲染类型: 目录类型');
-                    contentEl.innerHTML = '<div class="solution-section"><h2 class="section-title">问题分类</h2><div class="solution-tips"><div class="tips-title">提示</div><div class="tips-content">这是一个分类目录，请点击子问题查看具体内容。</div></div></div>';
+                    backLinkEl.href = 'subquestion.html?category=' + category;
                 }
-                
-                Logger.info('========== renderSolution() 执行完成 ==========');
-                
-            } catch (e) {
-                Logger.error('renderSolution() 执行出错!', e.message);
-                Logger.error('错误堆栈:', e.stack);
+            }
+
+            // 更新页面标题
+            titleEl.textContent = q.title;
+            subtitleEl.textContent = '问题详情';
+            
+            // 渲染内容
+            if (q.attribute === 'article') {
+                if (q.contentType === 'hyperlink' && q.hyperlink) {
+                    contentEl.innerHTML = `
+                        <div class="solution-section">
+                            <h2 class="section-title">外部链接</h2>
+                            <div style="padding:16px;background:#f8f9fa;border-radius:8px;text-align:center;">
+                                <p style="margin-bottom:16px;">即将跳转到外部链接：</p>
+                                <a href="${q.hyperlink}" target="_blank" style="color:var(--color-primary);word-break:break-all;">${q.hyperlink}</a>
+                                <p style="margin-top:16px;font-size:14px;color:#666;">正在自动跳转...</p>
+                            </div>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        window.open(q.hyperlink, '_blank');
+                    }, 1500);
+                } else if (q.content) {
+                    contentEl.innerHTML = `
+                        <div class="solution-section">
+                            <h2 class="section-title">解决方案</h2>
+                            <div class="rich-content" style="line-height:1.8;font-size:16px;color:var(--color-text-primary);">${q.content}</div>
+                        </div>
+                    `;
+                } else {
+                    contentEl.innerHTML = `
+                        <div class="solution-section">
+                            <div class="solution-tips">
+                                <div class="tips-title">提示</div>
+                                <div class="tips-content">该问题暂无详细内容。</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                // 目录类型 - 显示子目录/文章列表
+                const children = DataStore.getChildrenByParent(question);
+                if (children.length > 0) {
+                    const childHtml = children.map((child, index) => `
+                        <div class="solution-step">
+                            <div class="step-number">${index + 1}</div>
+                            <div class="step-content">
+                                <div class="step-title">
+                                    <a href="solution.html?category=${category}&question=${child.id}" style="color:var(--color-primary);text-decoration:none;">
+                                        ${child.title}
+                                    </a>
+                                    <span style="color:#999;font-size:12px;margin-left:8px;">
+                                        ${child.attribute === 'directory' ? '目录' : '文章'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    contentEl.innerHTML = `
+                        <div class="solution-section">
+                            <h2 class="section-title">子问题列表</h2>
+                            ${childHtml}
+                        </div>
+                    `;
+                } else {
+                    contentEl.innerHTML = `
+                        <div class="solution-section">
+                            <div class="solution-tips">
+                                <div class="tips-title">提示</div>
+                                <div class="tips-content">该目录下暂无子问题。</div>
+                            </div>
+                        </div>
+                    `;
+                }
             }
         }
 
-        // ========== 事件监听器 ==========
-        Logger.info('注册 contactBtn 点击事件');
-        document.getElementById('contactBtn').addEventListener('click', function() {
-            Logger.info('contactBtn 被点击');
-            alert('正在为您转接人工客服...');
-        });
-
         // ========== 初始化 ==========
-        Logger.info('注册 DOMContentLoaded 事件');
+        var serviceDeskUrl = '';
+
+        // 页面加载时获取服务台链接
+        fetch('http://localhost:3000/api/service-desk')
+            .then(function(res) { return res.json(); })
+            .then(function(data) { serviceDeskUrl = data.url || ''; })
+            .catch(function() { /* 静默失败 */ });
+
         document.addEventListener('DOMContentLoaded', function() {
-            Logger.info('========== DOMContentLoaded 事件触发 ==========');
             renderSolution();
-        });
-        
-        // 额外: 页面卸载时打印日志
-        window.addEventListener('beforeunload', function() {
-            Logger.info('页面即将卸载');
+
+            // 问题已解决
+            document.getElementById('btnResolved').addEventListener('click', function() {
+                document.getElementById('feedbackButtons').style.display = 'none';
+                document.getElementById('successFeedback').classList.add('show');
+                console.log('[反馈] 用户确认问题已解决');
+            });
+
+            // 问题未解决 → 直接跳转服务台
+            document.getElementById('btnUnresolved').addEventListener('click', function() {
+                if (serviceDeskUrl) {
+                    console.log('[反馈] 跳转服务台:', serviceDeskUrl);
+                    window.open(serviceDeskUrl, '_blank');
+                } else {
+                    alert('暂未配置服务台链接，请联系管理员。');
+                }
+            });
         });
     </script>
 </body>

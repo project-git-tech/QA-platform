@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>欧派家居 - 后台配置管理系统</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
+
     <style>
         :root{
             --color-primary:#7A5D38;
@@ -89,34 +90,60 @@
         .toggle-slider:before{content:'';position:absolute;width:20px;height:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:var(--shadow-sm)}
         .toggle-switch input:checked+.toggle-slider{background:var(--color-success)}
         .toggle-switch input:checked+.toggle-slider:before{transform:translateX(22px)}
-        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center;z-index:1000;padding:20px}
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:none;justify-content:center;align-items:center;z-index:1000;padding:20px}
         .modal-overlay.active{display:flex}
-        .modal{background:var(--color-bg-secondary);border-radius:var(--radius-lg);width:100%;max-width:600px;max-height:90vh;overflow:hidden;animation:modalIn .3s ease}
-        @keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-        .modal-header{padding:20px 24px;border-bottom:1px solid var(--color-border);display:flex;justify-content:space-between;align-items:center}
-        .modal-header h3{font-size:18px;font-weight:600}
-        .modal-close{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--color-text-tertiary)}
-        .modal-close:hover{background:var(--color-bg-tertiary)}
-        .modal-body{padding:24px;overflow-y:auto;max-height:calc(90vh - 140px)}
-        .modal-footer{padding:16px 24px;border-top:1px solid var(--color-border);display:flex;justify-content:flex-end;gap:12px}
-        .form-group{margin-bottom:20px}
-        .form-label{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
+        .modal{background:var(--color-bg-secondary);border-radius:var(--radius-xl);width:100%;max-width:640px;max-height:90vh;overflow:hidden;animation:modalIn .3s cubic-bezier(0.4, 0, 0.2, 1);box-shadow:var(--shadow-lg);border:1px solid var(--color-border-light);transition:all .3s ease}
+        .modal.maximized{max-width:100%;max-height:100%;width:100%;height:100%;border-radius:0}
+        @keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(-20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .modal-header{padding:24px 28px;border-bottom:1px solid var(--color-border-light);display:flex;justify-content:space-between;align-items:center;background:var(--color-bg-primary)}
+        .modal-header h3{font-size:20px;font-weight:600;color:var(--color-text-primary);margin:0}
+        .modal-header-actions{display:flex;gap:8px}
+        .modal-action-btn{width:40px;height:40px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--color-text-tertiary);transition:all .2s;border:none;background:transparent}
+        .modal-action-btn:hover{background:var(--color-bg-tertiary);color:var(--color-text-primary)}
+        .modal-action-btn i{font-size:20px}
+        .modal-close{width:40px;height:40px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--color-text-tertiary);transition:all .2s}
+        .modal-close:hover{background:var(--color-bg-tertiary);color:var(--color-text-primary)}
+        .modal-close i{font-size:20px}
+        .modal-body{padding:28px;overflow-y:auto;max-height:calc(90vh - 160px)}
+        .modal.maximized .modal-body{max-height:calc(100vh - 160px)}
+        .modal-footer{padding:20px 28px;border-top:1px solid var(--color-border-light);display:flex;justify-content:flex-end;gap:12px;background:var(--color-bg-primary)}
+        .form-group{margin-bottom:24px}
+        .form-label{display:block;font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px}
         .form-label.required:after{content:' *';color:var(--color-danger)}
-        .form-input{width:100%;padding:12px 16px;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:14px;background:var(--color-bg-secondary)}
-        .form-input:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px rgba(122,93,56,.1)}
-        textarea.form-input{resize:vertical;min-height:100px}
-        .form-select{width:100%;padding:12px 16px;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:14px;background:var(--color-bg-secondary);cursor:pointer}
-        .form-helper{font-size:12px;color:var(--color-text-tertiary);margin-top:6px}
+        .form-input{width:100%;padding:14px 18px;border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:15px;background:var(--color-bg-primary);transition:all .2s;color:var(--color-text-primary)}
+        .form-input:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 4px rgba(122,93,56,.12)}
+        .form-input::placeholder{color:var(--color-text-tertiary)}
+        textarea.form-input{resize:vertical;min-height:120px;line-height:1.6}
+        .form-select{width:100%;padding:14px 18px;border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:15px;background:var(--color-bg-primary);cursor:pointer;transition:all .2s;color:var(--color-text-primary);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+        .form-select:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 4px rgba(122,93,56,.12)}
+        .form-helper{font-size:13px;color:var(--color-text-tertiary);margin-top:8px;display:block}
+        .form-row{display:flex;gap:16px}
+        .form-row .form-group{flex:1;margin-bottom:24px}
+        .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--color-bg-primary);border-radius:var(--radius-md);border:1px solid var(--color-border)}
+        .toggle-row .form-label{margin:0;font-weight:500}
+        .form-textarea{width:100%;padding:14px 18px;border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:15px;background:var(--color-bg-primary);transition:all .2s;color:var(--color-text-primary);resize:vertical;min-height:100px;line-height:1.6}
+        .form-textarea:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 4px rgba(122,93,56,.12)}
+        .form-textarea::placeholder{color:var(--color-text-tertiary)}
         .rich-editor{border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden}
         .rich-editor-toolbar{display:flex;gap:4px;padding:10px;background:var(--color-bg-tertiary);border-bottom:1px solid var(--color-border);flex-wrap:wrap}
         .rich-editor-toolbar button{width:36px;height:36px;border:none;border-radius:var(--radius-sm);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--color-text-secondary)}
         .rich-editor-toolbar button:hover{background:var(--color-bg-secondary)}
         .rich-editor-toolbar button.active{background:var(--color-primary);color:#fff}
-        .rich-editor-content{min-height:200px;padding:16px;outline:none;overflow-y:auto}
+        .rich-editor-content{min-height:200px;padding:16px;outline:none;overflow-y:auto;max-height:400px}
         .rich-editor-content:focus{outline:none}
         .rich-editor-content p{margin-bottom:12px}
         .rich-editor-content ul,.rich-editor-content ol{margin-left:24px;margin-bottom:12px}
         .rich-editor-content h3{font-size:18px;font-weight:600;margin-bottom:12px}
+        .rich-editor-content img{max-width:100%;height:auto;border-radius:var(--radius-sm);cursor:pointer;transition:all .2s}
+        .rich-editor-content img:hover{outline:2px solid var(--color-primary);outline-offset:2px}
+        .rich-editor-content img.selected{outline:2px solid var(--color-primary);outline-offset:2px}
+        .rich-editor-content img.resizing{opacity:.8}
+        .image-resize-handle{position:absolute;width:12px;height:12px;background:var(--color-primary);border:2px solid #fff;border-radius:2px;cursor:se-resize;display:none}
+        .image-toolbar{position:absolute;background:var(--color-bg-secondary);border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:4px;display:flex;gap:4px;box-shadow:var(--shadow-md);z-index:10;display:none}
+        .image-toolbar button{width:28px;height:28px;border:none;border-radius:var(--radius-sm);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--color-text-secondary)}
+        .image-toolbar button:hover{background:var(--color-bg-tertiary);color:var(--color-text-primary)}
+        .image-toolbar button.danger:hover{background:rgba(239,68,68,.1);color:var(--color-danger)}
+        .modal.maximized .rich-editor-content{max-height:calc(100vh - 400px)}
         .tree-body{padding:16px;max-height:600px;overflow-y:auto}
         .tree-empty{text-align:center;padding:60px 20px;color:var(--color-text-tertiary)}
         .tree-empty i{font-size:48px;margin-bottom:16px;opacity:.5}
@@ -152,6 +179,7 @@
         .type-option span{display:block;font-size:14px;font-weight:500}
         .content-area{margin-top:20px}
         .content-area.hidden{display:none}
+        .hidden{display:none!important}
         .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:32px}
         .stat-card{background:var(--color-bg-secondary);border-radius:var(--radius-md);padding:24px;box-shadow:var(--shadow-sm)}
         .stat-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -241,6 +269,14 @@
                     <span class="nav-icon">📋</span>
                     <span>问题结构</span>
                 </div>
+                <div class="nav-item" data-section="service-desk">
+                    <span class="nav-icon">🔗</span>
+                    <span>服务台链接</span>
+                </div>
+                <div class="nav-item" data-section="appearance">
+                    <span class="nav-icon">🎨</span>
+                    <span>外观设置</span>
+                </div>
             </div>
         </nav>
     </aside>
@@ -322,6 +358,48 @@
                     </div>
                 </div>
             </section>
+            <section id="section-service-desk" class="page-section">
+                <div class="card">
+                    <div class="card-header"><h2>服务台链接配置</h2></div>
+                    <div class="card-body">
+                        <p style="color:var(--color-text-tertiary);margin-bottom:16px;font-size:14px;">
+                            配置用户点击「问题未解决」时跳转的服务台地址。留空则不跳转。
+                        </p>
+                        <div style="display:flex;gap:12px;align-items:flex-start;">
+                            <input type="text" id="serviceDeskUrl" class="form-input" placeholder="请输入服务台链接，如 https://service.example.com" style="flex:1;">
+                            <button class="btn btn-primary" onclick="saveServiceDeskUrl()"><i class="ri-save-line"></i><span>保存</span></button>
+                        </div>
+                        <p id="serviceDeskStatus" style="margin-top:12px;font-size:13px;color:var(--color-success);display:none;"><i class="ri-check-line"></i> 保存成功</p>
+                    </div>
+                </div>
+            </section>
+            <section id="section-appearance" class="page-section">
+                <div class="card">
+                    <div class="card-header"><h2>外观设置</h2></div>
+                    <div class="card-body">
+                        <p style="color:var(--color-text-tertiary);margin-bottom:20px;font-size:14px;">
+                            配置各模块鼠标悬停时的背景填充颜色。修改后即时生效，所有页面同步更新。
+                        </p>
+                        <style>
+                            .color-setting-row { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--color-bg-tertiary); border-radius: var(--radius-md); margin-bottom: 12px; }
+                            .color-setting-label { flex: 1; }
+                            .color-setting-label strong { display: block; font-size: 14px; color: var(--color-text-primary); margin-bottom: 2px; }
+                            .color-setting-label span { font-size: 12px; color: var(--color-text-tertiary); }
+                            .color-picker-wrap { position: relative; width: 48px; height: 36px; border-radius: 8px; overflow: hidden; border: 2px solid var(--color-border); cursor: pointer; transition: border-color .2s; }
+                            .color-picker-wrap:hover { border-color: var(--color-primary); }
+                            .color-picker-wrap input[type="color"] { position: absolute; inset: -4px; width: calc(100% + 8px); height: calc(100% + 8px); border: none; cursor: pointer; padding: 0; }
+                            .color-preview-box { width: 120px; height: 36px; border-radius: 8px; border: 1px solid var(--color-border); text-align: center; line-height: 36px; font-size: 12px; color: var(--color-text-secondary); }
+                            .appearance-actions { margin-top: 16px; display: flex; gap: 10px; }
+                        </style>
+                        <div id="appearanceSettingsList"></div>
+                        <div class="appearance-actions">
+                            <button class="btn btn-primary" onclick="saveAppearanceSettings()"><i class="ri-save-line"></i><span>保存设置</span></button>
+                            <button class="btn btn-secondary" onclick="resetAppearanceSettings()"><i class="ri-refresh-line"></i><span>恢复默认</span></button>
+                        </div>
+                        <p id="appearanceStatus" style="margin-top:12px;font-size:13px;color:var(--color-success);display:none;"><i class="ri-check-line"></i> 外观设置已保存</p>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 </div>
@@ -391,6 +469,10 @@
                 <input type="number" class="form-input" id="questionTypeOrder" value="0" min="0">
             </div>
             <div class="form-group">
+                <label class="form-label">介绍说明</label>
+                <textarea class="form-textarea" id="questionTypeDescription" placeholder="请输入问题类型介绍说明（可选）" rows="3"></textarea>
+            </div>
+            <div class="toggle-row">
                 <label class="form-label">启用状态</label>
                 <label class="toggle-switch">
                     <input type="checkbox" id="questionTypeStatus" checked>
@@ -409,7 +491,12 @@
     <div class="modal" style="max-width:700px">
         <div class="modal-header">
             <h3 id="questionModalTitle">添加问题</h3>
-            <div class="modal-close" onclick="closeQuestionModal()"><i class="ri-close-line"></i></div>
+            <div class="modal-header-actions">
+                <button class="modal-action-btn" onclick="toggleQuestionModalMaximize()" title="最大化/还原">
+                    <i class="ri-fullscreen-line" id="questionModalMaximizeIcon"></i>
+                </button>
+                <div class="modal-close" onclick="closeQuestionModal()"><i class="ri-close-line"></i></div>
+            </div>
         </div>
         <div class="modal-body">
             <input type="hidden" id="questionId">
@@ -471,6 +558,8 @@
                                 <button type="button" onclick="execCmd('justifyLeft')" title="左对齐"><i class="ri-align-left"></i></button>
                                 <button type="button" onclick="execCmd('justifyCenter')" title="居中"><i class="ri-align-center"></i></button>
                                 <button type="button" onclick="execCmd('justifyRight')" title="右对齐"><i class="ri-align-right"></i></button>
+                                <button type="button" onclick="showLinkDialog()" title="插入链接"><i class="ri-link"></i></button>
+                                <button type="button" onclick="execCmd('insertImage', prompt('请输入图片URL：'))" title="插入图片"><i class="ri-image"></i></button>
                             </div>
                             <div class="rich-editor-content" id="richEditorContent" contenteditable="true" placeholder="请输入富文本内容..."></div>
                         </div>
@@ -517,26 +606,25 @@ const DS = {
     hotQuestions: [],
     questionTypes: [],
     questions: [],
-    init() {
-        this.load();
-        if (this.hotQuestions.length === 0) {
-            this.loadTestData();
-        }
+    async init() {
+        await this.load();
     },
-    load() {
-        const d = localStorage.getItem('qaui_admin_data');
-        if (d) {
-            try {
-                const p = JSON.parse(d);
-                this.hotQuestions = p.hotQuestions || [];
-                this.questionTypes = p.questionTypes || [];
-                this.questions = p.questions || [];
-                this.migrateData();
-            } catch (e) {
-                this.hotQuestions = [];
-                this.questionTypes = [];
-                this.questions = [];
-            }
+    async load() {
+        try {
+            const [typesRes, questionsRes, hotRes] = await Promise.all([
+                fetch('http://localhost:3000/api/types'),
+                fetch('http://localhost:3000/api/questions'),
+                fetch('http://localhost:3000/api/hot')
+            ]);
+            this.questionTypes = await typesRes.json() || [];
+            this.questions = await questionsRes.json() || [];
+            this.hotQuestions = await hotRes.json() || [];
+            this.migrateData();
+        } catch (error) {
+            console.error('Failed to load data from API:', error);
+            this.hotQuestions = [];
+            this.questionTypes = [];
+            this.questions = [];
         }
     },
     migrateData() {
@@ -552,40 +640,158 @@ const DS = {
             this.save();
         }
     },
-    save() {
-        localStorage.setItem('qaui_admin_data', JSON.stringify({
-            hotQuestions: this.hotQuestions,
-            questionTypes: this.questionTypes,
-            questions: this.questions
-        }));
-        window.dispatchEvent(new CustomEvent('dataUpdated'));
+    async save() {
+        try {
+            await Promise.all([
+                ...this.questionTypes.map(t => 
+                    fetch(`http://localhost:3000/api/types/${t.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(t)
+                    })
+                ),
+                ...this.questions.map(q => 
+                    fetch(`http://localhost:3000/api/questions/${q.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(q)
+                    })
+                ),
+                ...this.hotQuestions.map(h => {
+                    // 根据 _isNew 标记决定使用 POST 还是 PUT
+                    const method = h._isNew ? 'POST' : 'PUT';
+                    const url = h._isNew ? 'http://localhost:3000/api/hot' : `http://localhost:3000/api/hot/${h.id}`;
+                    return fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(h)
+                    }).then(res => {
+                        // 保存成功后移除 _isNew 标记
+                        if (h._isNew) {
+                            delete h._isNew;
+                        }
+                        return res;
+                    });
+                })
+            ]);
+            window.dispatchEvent(new CustomEvent('dataUpdated'));
+        } catch (error) {
+            console.error('Failed to save data to API:', error);
+        }
     },
-    loadTestData() {
-        this.questionTypes = [
-            { id: 'type_1', name: '产品咨询', icon: 'ri-home-line', order: 1, status: true },
-            { id: 'type_2', name: '售后服务', icon: 'ri-customer-service-line', order: 2, status: true },
-            { id: 'type_3', name: '物流配送', icon: 'ri-truck-line', order: 3, status: true },
-            { id: 'type_4', name: '促销活动', icon: 'ri-money-cny-circle-line', order: 4, status: true }
-        ];
-        this.questions = [
-            { id: 'q_1', typeId: 'type_1', parentId: null, title: '衣柜产品', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
-            { id: 'q_1_1', typeId: 'type_1', parentId: 'q_1', title: '衣柜材质选择', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
-            { id: 'q_1_1_1', typeId: 'type_1', parentId: 'q_1_1', title: '实木衣柜优缺点', attribute: 'article', contentType: 'richtext', content: '<h3>实木衣柜优缺点分析</h3><p>实木衣柜天然环保质感好，但价格较高需定期保养。</p><ul><li>优点：天然环保、使用寿命长</li><li>缺点：价格较高、需要定期保养</li></ul>', hyperlink: null, order: 1 },
-            { id: 'q_1_1_2', typeId: 'type_1', parentId: 'q_1_1', title: '板材衣柜对比', attribute: 'article', contentType: 'hyperlink', content: null, hyperlink: 'https://example.com/wardrobe', order: 2 },
-            { id: 'q_2', typeId: 'type_2', parentId: null, title: '订单查询', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
-            { id: 'q_2_1', typeId: 'type_2', parentId: 'q_2', title: '如何查询订单状态', attribute: 'article', contentType: 'richtext', content: '<h3>如何查询订单状态</h3><p>登录后进入订单中心即可查看订单状态。</p><ol><li>登录账号</li><li>进入订单中心</li><li>选择订单查看详情</li></ol>', hyperlink: null, order: 1 },
-            { id: 'q_3', typeId: 'type_3', parentId: null, title: '配送信息', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
-            { id: 'q_3_1', typeId: 'type_3', parentId: 'q_3', title: '配送范围查询', attribute: 'article', contentType: 'hyperlink', content: null, hyperlink: 'https://example.com/delivery', order: 1 }
-        ];
-        this.hotQuestions = [
-            { id: 'hq_1', title: '衣柜材质如何选择？', linkId: 'q_1_1', order: 1, status: true },
-            { id: 'hq_2', title: '如何查询订单状态？', linkId: 'q_2_1', order: 2, status: true }
-        ];
-        this.save();
+    async addQuestionType(type) {
+        try {
+            const res = await fetch('http://localhost:3000/api/types', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(type)
+            });
+            return await res.json();
+        } catch (error) {
+            console.error('Failed to add question type:', error);
+            throw error;
+        }
+    },
+    async updateQuestionType(type) {
+        try {
+            const res = await fetch(`http://localhost:3000/api/types/${type.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(type)
+            });
+            return await res.json();
+        } catch (error) {
+            console.error('Failed to update question type:', error);
+            throw error;
+        }
+    },
+    async deleteQuestionType(id) {
+        try {
+            await fetch(`http://localhost:3000/api/types/${id}`, {
+                method: 'DELETE'
+            });
+        } catch (error) {
+            console.error('Failed to delete question type:', error);
+            throw error;
+        }
+    },
+    async addQuestion(question) {
+        try {
+            const res = await fetch('http://localhost:3000/api/questions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(question)
+            });
+            return await res.json();
+        } catch (error) {
+            console.error('Failed to add question:', error);
+            throw error;
+        }
+    },
+    async updateQuestion(question) {
+        try {
+            const res = await fetch(`http://localhost:3000/api/questions/${question.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(question)
+            });
+            return await res.json();
+        } catch (error) {
+            console.error('Failed to update question:', error);
+            throw error;
+        }
+    },
+    async deleteQuestion(id) {
+        try {
+            await fetch(`http://localhost:3000/api/questions/${id}`, {
+                method: 'DELETE'
+            });
+        } catch (error) {
+            console.error('Failed to delete question:', error);
+            throw error;
+        }
+    },
+    async addHotQuestion(hq) {
+        try {
+            const res = await fetch('http://localhost:3000/api/hot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(hq)
+            });
+            return await res.json();
+        } catch (error) {
+            console.error('Failed to add hot question:', error);
+            throw error;
+        }
+    },
+    async updateHotQuestion(hq) {
+        try {
+            const res = await fetch(`http://localhost:3000/api/hot/${hq.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(hq)
+            });
+            return await res.json();
+        } catch (error) {
+            console.error('Failed to update hot question:', error);
+            throw error;
+        }
+    },
+    async deleteHotQuestion(id) {
+        try {
+            await fetch(`http://localhost:3000/api/hot/${id}`, {
+                method: 'DELETE'
+            });
+        } catch (error) {
+            console.error('Failed to delete hot question:', error);
+            throw error;
+        }
     }
 };
 
-DS.init();
+DS.init().then(() => {
+    updateStats();
+});
 
 function toast(m, t = 'success') {
     const c = document.getElementById('toastContainer');
@@ -602,11 +808,13 @@ function showSection(n) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('section-' + n).classList.add('active');
     document.querySelector('.nav-item[data-section="' + n + '"]').classList.add('active');
-    const t = { overview: '系统概览', 'hot-questions': '热门问题管理', 'question-types': '问题类型配置', 'question-tree': '问题结构管理' };
+    const t = { overview: '系统概览', 'hot-questions': '热门问题管理', 'question-types': '问题类型配置', 'question-tree': '问题结构管理', 'service-desk': '服务台链接配置', appearance: '外观设置' };
     document.getElementById('pageTitle').textContent = t[n] || '系统概览';
     if (n === 'hot-questions') renderHotQuestions();
     if (n === 'question-types') renderQuestionTypes();
     if (n === 'question-tree') { updateTreeTypeFilter(); renderQuestionTree(); }
+    if (n === 'service-desk') loadServiceDeskUrl();
+    if (n === 'appearance') renderAppearanceSettings();
 }
 
 document.querySelectorAll('.nav-item').forEach(i => i.addEventListener('click', () => showSection(i.dataset.section)));
@@ -681,7 +889,8 @@ function saveHotQuestion() {
         h.status = status;
         toast('热门问题已更新');
     } else {
-        DS.hotQuestions.push({ id: 'hq_' + Date.now(), title, linkId, order, status });
+        // 添加 _isNew 标记，以便保存时使用 POST 请求
+        DS.hotQuestions.push({ id: 'hq_' + Date.now(), title, linkId, order, status, _isNew: true });
         toast('热门问题已添加');
     }
     DS.save();
@@ -744,6 +953,7 @@ function openQuestionTypeModal(id = null) {
         document.getElementById('questionTypeName').value = type.name;
         document.getElementById('questionTypeIcon').value = type.icon;
         document.getElementById('questionTypeOrder').value = type.order;
+        document.getElementById('questionTypeDescription').value = type.description || '';
         document.getElementById('questionTypeStatus').checked = type.status;
     } else {
         document.getElementById('questionTypeModalTitle').textContent = '添加问题类型';
@@ -751,6 +961,7 @@ function openQuestionTypeModal(id = null) {
         document.getElementById('questionTypeName').value = '';
         document.getElementById('questionTypeIcon').value = 'ri-home-line';
         document.getElementById('questionTypeOrder').value = DS.questionTypes.length + 1;
+        document.getElementById('questionTypeDescription').value = '';
         document.getElementById('questionTypeStatus').checked = true;
     }
     document.getElementById('questionTypeModal').classList.add('active');
@@ -760,48 +971,61 @@ function closeQuestionTypeModal() {
     document.getElementById('questionTypeModal').classList.remove('active');
 }
 
-function saveQuestionType() {
+async function saveQuestionType() {
     const id = document.getElementById('questionTypeId').value;
     const name = document.getElementById('questionTypeName').value.trim();
     const icon = document.getElementById('questionTypeIcon').value;
     const order = parseInt(document.getElementById('questionTypeOrder').value) || 0;
+    const description = document.getElementById('questionTypeDescription').value.trim();
     const status = document.getElementById('questionTypeStatus').checked;
     if (!name) { toast('请输入类型名称', 'error'); return; }
-    if (id) {
-        const type = DS.questionTypes.find(t => t.id === id);
-        type.name = name;
-        type.icon = icon;
-        type.order = order;
-        type.status = status;
-        toast('问题类型已更新');
-    } else {
-        DS.questionTypes.push({ id: 'type_' + Date.now(), name, icon, order, status });
-        toast('问题类型已添加');
+    try {
+        if (id) {
+            const type = DS.questionTypes.find(t => t.id === id);
+            type.name = name;
+            type.icon = icon;
+            type.order = order;
+            type.description = description;
+            type.status = status;
+            await DS.updateQuestionType(type);
+            toast('问题类型已更新');
+        } else {
+            const newType = { id: 'type_' + Date.now(), name, icon, order, description, status };
+            const savedType = await DS.addQuestionType(newType);
+            DS.questionTypes.push(savedType);
+            toast('问题类型已添加');
+        }
+        closeQuestionTypeModal();
+        renderQuestionTypes();
+        updateStats();
+        updateTreeTypeFilter();
+    } catch (error) {
+        toast('保存失败: ' + error.message, 'error');
     }
-    DS.save();
-    closeQuestionTypeModal();
-    renderQuestionTypes();
-    updateStats();
-    updateTreeTypeFilter();
 }
 
 function editQT(id) {
     openQuestionTypeModal(id);
 }
 
-function deleteQT(id) {
+async function deleteQT(id) {
     const qc = DS.questions.filter(q => q.typeId === id).length;
     document.getElementById('deleteMessage').textContent = `删除类型将同时删除${qc}个问题，确定删除吗？`;
-    document.getElementById('confirmDeleteBtn').onclick = () => {
-        DS.questionTypes = DS.questionTypes.filter(t => t.id !== id);
-        DS.questions = DS.questions.filter(q => q.typeId !== id);
-        DS.save();
-        closeDeleteModal();
-        renderQuestionTypes();
-        updateStats();
-        updateTreeTypeFilter();
-        renderQuestionTree();
-        toast('问题类型已删除');
+    document.getElementById('confirmDeleteBtn').onclick = async () => {
+        try {
+            await DS.deleteQuestionType(id);
+            DS.questionTypes = DS.questionTypes.filter(t => t.id !== id);
+            DS.questions = DS.questions.filter(q => q.typeId !== id);
+            closeDeleteModal();
+            renderQuestionTypes();
+            updateStats();
+            updateTreeTypeFilter();
+            renderQuestionTree();
+            toast('问题类型已删除');
+        } catch (error) {
+            console.error('删除失败:', error);
+            toast('删除失败，请重试', 'error');
+        }
     };
     document.getElementById('deleteModal').classList.add('active');
 }
@@ -1078,9 +1302,22 @@ function buildParentOptions(directories, parentId, level) {
 
 function closeQuestionModal() {
     document.getElementById('questionModal').classList.remove('active');
+    
+    // 重置最大化状态
+    if (questionModalMaximized) {
+        const modal = document.querySelector('#questionModal .modal');
+        const icon = document.getElementById('questionModalMaximizeIcon');
+        modal.classList.remove('maximized');
+        modal.style.maxWidth = '700px';
+        icon.className = 'ri-fullscreen-line';
+        questionModalMaximized = false;
+    }
+    
+    // 取消图片选中状态
+    deselectImage();
 }
 
-function saveQuestion() {
+async function saveQuestion() {
     const id = document.getElementById('questionId').value;
     const title = document.getElementById('questionTitle').value.trim();
     const typeId = document.getElementById('questionTypeSelect').value;
@@ -1093,24 +1330,31 @@ function saveQuestion() {
         content = currContent === 'richtext' ? document.getElementById('richEditorContent').innerHTML : null;
         hyperlink = currContent === 'hyperlink' ? document.getElementById('questionHyperlink').value : null;
     }
-    if (id) {
-        const q = DS.questions.find(x => x.id === id);
-        q.title = title;
-        q.typeId = typeId;
-        q.parentId = parentId;
-        q.attribute = currAttr;
-        q.contentType = contentType;
-        q.content = content;
-        q.hyperlink = hyperlink;
-        toast('问题已更新');
-    } else {
-        DS.questions.push({ id: 'q_' + Date.now(), typeId, parentId, title, attribute: currAttr, contentType, content, hyperlink, order: DS.questions.filter(q => q.parentId === parentId).length + 1 });
-        toast('问题已添加');
+    try {
+        if (id) {
+            const q = DS.questions.find(x => x.id === id);
+            q.title = title;
+            q.typeId = typeId;
+            q.parentId = parentId;
+            q.attribute = currAttr;
+            q.contentType = contentType;
+            q.content = content;
+            q.hyperlink = hyperlink;
+            await DS.updateQuestion(q);
+            toast('问题已更新');
+        } else {
+            const order = DS.questions.filter(q => q.parentId === parentId).length + 1;
+            const newQuestion = { id: 'q_' + Date.now(), typeId, parentId, title, attribute: currAttr, contentType, content, hyperlink, order };
+            const savedQuestion = await DS.addQuestion(newQuestion);
+            DS.questions.push(savedQuestion);
+            toast('问题已添加');
+        }
+        closeQuestionModal();
+        renderQuestionTree();
+        updateStats();
+    } catch (error) {
+        toast('保存失败: ' + error.message, 'error');
     }
-    DS.save();
-    closeQuestionModal();
-    renderQuestionTree();
-    updateStats();
 }
 
 function openQModal(id, parentId) {
@@ -1143,17 +1387,25 @@ function deleteQ(id) {
     const q = DS.questions.find(x => x.id === id);
     const childCount = DS.questions.filter(x => x.parentId === id).length;
     document.getElementById('deleteMessage').textContent = childCount > 0 ? `删除将同时删除${childCount}个子问题，确定删除吗？` : '确定要删除此问题吗？';
-    document.getElementById('confirmDeleteBtn').onclick = () => {
-        const deleteRecursive = (pid) => {
-            DS.questions = DS.questions.filter(x => x.id !== pid);
-            DS.questions.filter(x => x.parentId === pid).forEach(c => deleteRecursive(c.id));
-        };
-        deleteRecursive(id);
-        DS.save();
-        closeDeleteModal();
-        renderQuestionTree();
-        updateStats();
-        toast('问题已删除');
+    document.getElementById('confirmDeleteBtn').onclick = async () => {
+        try {
+            const deleteRecursive = async (pid) => {
+                await DS.deleteQuestion(pid);
+                DS.questions = DS.questions.filter(x => x.id !== pid);
+                const children = DS.questions.filter(x => x.parentId === pid);
+                for (const child of children) {
+                    await deleteRecursive(child.id);
+                }
+            };
+            await deleteRecursive(id);
+            closeDeleteModal();
+            renderQuestionTree();
+            updateStats();
+            toast('问题已删除');
+        } catch (error) {
+            console.error('删除失败:', error);
+            toast('删除失败，请重试', 'error');
+        }
     };
     document.getElementById('deleteModal').classList.add('active');
 }
@@ -1166,8 +1418,310 @@ function resetTestData() {
     toast('数据已重置');
 }
 
+// 模态框最大化功能
+let questionModalMaximized = false;
+
+function toggleQuestionModalMaximize() {
+    const modal = document.querySelector('#questionModal .modal');
+    const icon = document.getElementById('questionModalMaximizeIcon');
+    
+    if (questionModalMaximized) {
+        // 还原
+        modal.classList.remove('maximized');
+        modal.style.maxWidth = '700px';
+        icon.className = 'ri-fullscreen-line';
+        questionModalMaximized = false;
+    } else {
+        // 最大化
+        modal.classList.add('maximized');
+        modal.style.maxWidth = '100%';
+        icon.className = 'ri-fullscreen-exit-line';
+        questionModalMaximized = true;
+    }
+}
+
 function execCmd(cmd, value = null) {
     document.execCommand(cmd, false, value);
+}
+
+function showLinkDialog() {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) {
+        toast('请先选中要添加链接的文字', 'warning');
+        return;
+    }
+    const selectedText = selection.toString();
+    const url = prompt('请输入链接地址：', 'https://');
+    if (url && url.trim()) {
+        document.execCommand('createLink', false, url.trim());
+    }
+}
+
+// 图片调整功能
+let selectedImage = null;
+let imageToolbar = null;
+
+function initImageResize() {
+    const editor = document.getElementById('richEditorContent');
+    if (!editor) return;
+    
+    // 创建图片工具栏
+    imageToolbar = document.createElement('div');
+    imageToolbar.className = 'image-toolbar';
+    imageToolbar.innerHTML = `
+        <button onclick="resizeImage(0.5)" title="缩小50%"><i class="ri-subtract-line"></i></button>
+        <button onclick="resizeImage(0.75)" title="缩小25%"><i class="ri-arrow-left-line"></i></button>
+        <button onclick="resetImageSize()" title="还原大小"><i class="ri-refresh-line"></i></button>
+        <button onclick="resizeImage(1.5)" title="放大50%"><i class="ri-arrow-right-line"></i></button>
+        <button onclick="resizeImage(2)" title="放大100%"><i class="ri-add-line"></i></button>
+        <button onclick="deleteSelectedImage()" title="删除图片" class="danger"><i class="ri-delete-bin-line"></i></button>
+    `;
+    editor.parentElement.appendChild(imageToolbar);
+    
+    // 点击图片时选中
+    editor.addEventListener('click', function(e) {
+        if (e.target.tagName === 'IMG') {
+            selectImage(e.target);
+        } else {
+            deselectImage();
+        }
+    });
+    
+    // 双击图片调整大小
+    editor.addEventListener('dblclick', function(e) {
+        if (e.target.tagName === 'IMG') {
+            const currentWidth = e.target.offsetWidth;
+            const newWidth = prompt('请输入图片宽度（像素）：', currentWidth);
+            if (newWidth && !isNaN(newWidth)) {
+                e.target.style.width = newWidth + 'px';
+                e.target.style.height = 'auto';
+            }
+        }
+    });
+}
+
+function selectImage(img) {
+    // 取消之前选中的图片
+    if (selectedImage) {
+        selectedImage.classList.remove('selected');
+    }
+    
+    selectedImage = img;
+    img.classList.add('selected');
+    
+    // 显示工具栏
+    const rect = img.getBoundingClientRect();
+    const editorRect = img.closest('.rich-editor').getBoundingClientRect();
+    
+    imageToolbar.style.display = 'flex';
+    imageToolbar.style.left = (rect.left - editorRect.left) + 'px';
+    imageToolbar.style.top = (rect.bottom - editorRect.top + 5) + 'px';
+}
+
+function deselectImage() {
+    if (selectedImage) {
+        selectedImage.classList.remove('selected');
+        selectedImage = null;
+    }
+    if (imageToolbar) {
+        imageToolbar.style.display = 'none';
+    }
+}
+
+function resizeImage(factor) {
+    if (!selectedImage) return;
+    
+    const currentWidth = selectedImage.offsetWidth;
+    const newWidth = Math.round(currentWidth * factor);
+    
+    selectedImage.style.width = newWidth + 'px';
+    selectedImage.style.height = 'auto';
+    
+    // 更新工具栏位置
+    const rect = selectedImage.getBoundingClientRect();
+    const editorRect = selectedImage.closest('.rich-editor').getBoundingClientRect();
+    imageToolbar.style.left = (rect.left - editorRect.left) + 'px';
+    imageToolbar.style.top = (rect.bottom - editorRect.top + 5) + 'px';
+}
+
+function resetImageSize() {
+    if (!selectedImage) return;
+    
+    selectedImage.style.width = '';
+    selectedImage.style.height = '';
+    
+    // 更新工具栏位置
+    const rect = selectedImage.getBoundingClientRect();
+    const editorRect = selectedImage.closest('.rich-editor').getBoundingClientRect();
+    imageToolbar.style.left = (rect.left - editorRect.left) + 'px';
+    imageToolbar.style.top = (rect.bottom - editorRect.top + 5) + 'px';
+}
+
+function deleteSelectedImage() {
+    if (!selectedImage) return;
+    
+    selectedImage.remove();
+    deselectImage();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const editor = document.getElementById('richEditorContent');
+    if (editor) {
+        editor.addEventListener('paste', function(e) {
+            const items = e.clipboardData && e.clipboardData.items;
+            if (!items) return;
+            
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    e.preventDefault();
+                    const file = item.getAsFile();
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            document.execCommand('insertImage', false, event.target.result);
+                            // 贴图后自动缩放：找到刚插入的图片，限制最大宽度
+                            setTimeout(function() {
+                                var imgs = editor.querySelectorAll('img');
+                                if (imgs.length > 0) {
+                                    var lastImg = imgs[imgs.length - 1];
+                                    // 如果图片过宽（超过容器），等比缩放到最大800px
+                                    if (lastImg.naturalWidth > 800) {
+                                        lastImg.style.maxWidth = '800px';
+                                        lastImg.style.height = 'auto';
+                                    }
+                                }
+                            }, 50);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            }
+        });
+        
+        // 初始化图片调整功能
+        initImageResize();
+    }
+});
+
+// ========== 服务台链接管理 ==========
+async function loadServiceDeskUrl() {
+    try {
+        const res = await fetch('http://localhost:3000/api/service-desk');
+        const data = await res.json();
+        document.getElementById('serviceDeskUrl').value = data.url || '';
+        document.getElementById('serviceDeskStatus').style.display = 'none';
+    } catch (e) {
+        console.error('加载服务台链接失败:', e);
+    }
+}
+
+async function saveServiceDeskUrl() {
+    const url = document.getElementById('serviceDeskUrl').value.trim();
+    try {
+        await fetch('http://localhost:3000/api/service-desk', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+        });
+        const statusEl = document.getElementById('serviceDeskStatus');
+        statusEl.style.display = 'block';
+        setTimeout(() => statusEl.style.display = 'none', 2000);
+        toast('服务台链接已保存');
+    } catch (e) {
+        console.error('保存服务台链接失败:', e);
+        toast('保存失败，请重试');
+    }
+}
+
+// ========== 外观设置管理 ==========
+var APPEARANCE_DEFAULTS = {
+    hoverCardBg: '#FFF8ED',
+    hoverButtonBg: '#FFF8ED',
+    hoverLinkBg: '#FFF8ED',
+    heroBg: '#FBBF24'
+};
+
+function getAppearanceSettings() {
+    try {
+        var saved = localStorage.getItem('qaui_appearance_settings');
+        return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(APPEARANCE_DEFAULTS));
+    } catch (e) {
+        return JSON.parse(JSON.stringify(APPEARANCE_DEFAULTS));
+    }
+}
+
+function renderAppearanceSettings() {
+    var settings = getAppearanceSettings();
+    var items = [
+        { key: 'hoverCardBg', label: '卡片悬停背景色', desc: '问题列表、类型选择等卡片的悬停填充颜色' },
+        { key: 'hoverButtonBg', label: '按钮悬停背景色', desc: '操作按钮、管理按钮等的悬停填充颜色' },
+        { key: 'hoverLinkBg', label: '链接悬停背景色', desc: '返回按钮、导航链接等的悬停填充颜色' },
+        { key: 'heroBg', label: '首页背景色', desc: '首页欢迎区域的渐变基础色调（影响整体视觉风格）' }
+    ];
+    var html = '';
+    items.forEach(function(item) {
+        var val = settings[item.key] || APPEARANCE_DEFAULTS[item.key];
+        html += '<div class="color-setting-row">' +
+            '<div class="color-setting-label"><strong>' + item.label + '</strong><span>' + item.desc + '</span></div>' +
+            '<div class="color-picker-wrap" style="background:' + val + '">' +
+            '<input type="color" value="' + val + '" data-key="' + item.key + '" onchange="onAppearanceColorChange(this)">' +
+            '</div>' +
+            '<div class="color-preview-box" id="preview_' + item.key + '" style="background:' + val + '">预览</div>' +
+            '</div>';
+    });
+    document.getElementById('appearanceSettingsList').innerHTML = html;
+    document.getElementById('appearanceStatus').style.display = 'none';
+}
+
+function onAppearanceColorChange(input) {
+    var key = input.dataset.key;
+    var color = input.value;
+    // 更新预览
+    var previewEl = document.getElementById('preview_' + key);
+    if (previewEl) previewEl.style.background = color;
+    // 更新选择器背景
+    input.parentElement.style.background = color;
+    // 即时预览：更新CSS变量
+    applyAppearanceColor(key, color);
+}
+
+function applyAppearanceColor(key, color) {
+    switch (key) {
+        case 'hoverCardBg':
+            document.documentElement.style.setProperty('--hover-card-bg', color);
+            break;
+        case 'hoverButtonBg':
+            document.documentElement.style.setProperty('--hover-button-bg', color);
+            break;
+        case 'hoverLinkBg':
+            document.documentElement.style.setProperty('--hover-link-bg', color);
+            break;
+        case 'heroBg':
+            document.documentElement.style.setProperty('--hero-bg-color', color);
+            break;
+    }
+}
+
+function saveAppearanceSettings() {
+    var inputs = document.querySelectorAll('#appearanceSettingsList input[type="color"]');
+    var settings = {};
+    inputs.forEach(function(input) {
+        settings[input.dataset.key] = input.value;
+    });
+    localStorage.setItem('qaui_appearance_settings', JSON.stringify(settings));
+    // 应用到当前页面
+    Object.keys(settings).forEach(function(k) { applyAppearanceColor(k, settings[k]); });
+    var statusEl = document.getElementById('appearanceStatus');
+    statusEl.style.display = 'block';
+    setTimeout(function() { statusEl.style.display = 'none'; }, 2000);
+    toast('外观设置已保存');
+}
+
+function resetAppearanceSettings() {
+    localStorage.removeItem('qaui_appearance_settings');
+    renderAppearanceSettings();
+    Object.keys(APPEARANCE_DEFAULTS).forEach(function(k) { applyAppearanceColor(k, APPEARANCE_DEFAULTS[k]); });
+    toast('已恢复默认外观设置');
 }
 </script>
 </body>

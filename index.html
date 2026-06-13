@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>欧派家居 - 智能客服指引</title>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <title>欧派家居 - 智能客服指引 [v3-fix]</title>
+
     <style>
         :root {
             --color-primary: #7A5D38;
@@ -367,6 +367,114 @@
             display: none;
         }
 
+        /* Search Results Section */
+        .search-results-section {
+            background: var(--color-bg-card);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--color-border);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .search-results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .search-results-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .search-results-count {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-tertiary);
+        }
+
+        .search-results-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-lg);
+            background: var(--color-bg-tertiary);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: inherit;
+            transition: all var(--transition-base);
+            border: 1px solid transparent;
+        }
+
+        .search-result-item:hover {
+            background: var(--color-bg-secondary);
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-sm);
+            transform: translateX(4px);
+        }
+
+        .search-result-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .search-result-icon svg {
+            width: 20px;
+            height: 20px;
+            color: var(--color-primary);
+        }
+
+        .search-result-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .search-result-title {
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .search-result-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .search-result-type {
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+
+        .search-result-arrow {
+            width: 20px;
+            height: 20px;
+            color: var(--color-text-tertiary);
+            flex-shrink: 0;
+            transition: all var(--transition-fast);
+        }
+
+        .search-result-item:hover .search-result-arrow {
+            color: var(--color-primary);
+            transform: translateX(4px);
+        }
+
         .progress-connector {
             width: 48px;
             height: 2px;
@@ -444,6 +552,12 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
+        }
+
+        .category-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
         }
 
         .category-card::before {
@@ -904,6 +1018,20 @@
             </div>
         </section>
 
+        <!-- Search Results Section -->
+        <section class="search-results-section" id="searchResultsSection" style="display:none;">
+            <div class="search-results-header">
+                <h2 class="search-results-title">搜索结果</h2>
+                <span class="search-results-count" id="searchResultsCount"></span>
+            </div>
+            <div class="search-results-list" id="searchResultsList">
+                <!-- Search results will be populated here -->
+            </div>
+            <button class="btn-secondary" id="clearSearchBtn" style="margin-top:16px;display:block;">
+                清除搜索，返回首页
+            </button>
+        </section>
+
         <!-- Category Section -->
         <section class="category-section" id="categorySection">
             <h2 class="section-title">问题类型</h2>
@@ -915,38 +1043,74 @@
     </main>
 
     <script>
-        // ============================================
-        // DataStore Module - 共享数据存储管理
-        // ============================================
+        // ========== 数据存储模块 ==========
         const DataStore = {
-            data: null,
-            load() {
-                const d = localStorage.getItem('qaui_admin_data');
-                if (d) {
-                    try {
-                        this.data = JSON.parse(d);
-                    } catch (e) {
-                        this.data = { questionTypes: [], questions: [], hotQuestions: [] };
-                    }
-                } else {
-                    this.data = { questionTypes: [], questions: [], hotQuestions: [] };
+            questionTypes: [],
+            questions: [],
+            hotQuestions: [],
+            
+            async load() {
+                try {
+                    const [typesRes, questionsRes, hotRes] = await Promise.all([
+                        fetch('http://localhost:3000/api/types'),
+                        fetch('http://localhost:3000/api/questions'),
+                        fetch('http://localhost:3000/api/hot')
+                    ]);
+                    this.questionTypes = await typesRes.json() || [];
+                    this.questions = await questionsRes.json() || [];
+                    this.hotQuestions = await hotRes.json() || [];
+                } catch (error) {
+                    console.error('数据加载失败:', error);
+                    this.questionTypes = [];
+                    this.questions = [];
+                    this.hotQuestions = [];
                 }
-                return this.data;
             },
-            getQuestionTypes() {
-                if (!this.data) this.load();
-                return this.data.questionTypes || [];
-            },
-            getQuestions() {
-                if (!this.data) this.load();
-                return this.data.questions || [];
-            },
-            getHotQuestions() {
-                if (!this.data) this.load();
-                return this.data.hotQuestions || [];
-            },
-            getQuestionsByType(typeId) {
-                return this.getQuestions().filter(q => q.typeId === typeId);
+            getQuestionTypes() { return this.questionTypes; },
+            getHotQuestions() { return this.hotQuestions; },
+            search(keyword) {
+                if (!keyword.trim()) return [];
+                
+                const lowerKeyword = keyword.toLowerCase();
+                const results = [];
+                
+                // 搜索问题类型
+                this.questionTypes.forEach(type => {
+                    if (type.name.toLowerCase().includes(lowerKeyword) ||
+                        (type.description && type.description.toLowerCase().includes(lowerKeyword))) {
+                        results.push({
+                            type: 'category',
+                            id: type.id,
+                            title: type.name,
+                            description: type.description || '点击查看详情',
+                            url: `subquestion.html?category=${encodeURIComponent(type.id)}`
+                        });
+                    }
+                });
+                
+                // 搜索问题（目录和文章）
+                this.questions.forEach(question => {
+                    const matchTitle = question.title.toLowerCase().includes(lowerKeyword);
+                    const matchContent = question.content && question.content.toLowerCase().includes(lowerKeyword);
+                    
+                    if (matchTitle || matchContent) {
+                        const typeName = this.questionTypes.find(t => t.id === question.typeId)?.name || '未知类型';
+                        results.push({
+                            type: question.attribute,
+                            id: question.id,
+                            typeId: question.typeId,
+                            title: question.title,
+                            description: question.attribute === 'directory' ? '点击进入目录' : '点击查看文章',
+                            parentId: question.parentId,
+                            url: question.attribute === 'directory' 
+                                ? `subquestion.html?category=${encodeURIComponent(question.typeId)}&path=${question.id}`
+                                : `solution.html?category=${encodeURIComponent(question.typeId)}&question=${question.id}`,
+                            typeName: typeName
+                        });
+                    }
+                });
+                
+                return results;
             }
         };
 
@@ -973,29 +1137,20 @@
             }
 
             grid.innerHTML = types.map(type => {
-                const count = DataStore.getQuestionsByType(type.id).length;
                 const iconPath = categoryIcons[type.icon] || categoryIcons['ri-file-text-line'];
+                const description = type.description || `点击查看${type.name}相关问题`;
                 return `
-                    <div class="category-card" data-category="${type.id}">
+                    <div class="category-card" data-type-id="${type.id}">
                         <div class="category-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 ${iconPath}
                             </svg>
                         </div>
-                        <h3 class="category-title">${type.name}</h3>
-                        <p class="category-description">点击查看${type.name}相关问题</p>
-                        <span class="category-count">${count} 个问题</span>
+                        <h3 class="category-title" style="color: #7A5D38; font-size: 18px; font-weight: bold;">${type.name}</h3>
+                        <p class="category-description" style="color: #6B7280; font-size: 14px;">${description}</p>
                     </div>
                 `;
             }).join('');
-
-            // Reattach click handlers
-            grid.querySelectorAll('.category-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    const category = card.dataset.category;
-                    window.location.href = `subquestion.html?category=${category}`;
-                });
-            });
         }
 
         function loadHotQuestions() {
@@ -1011,18 +1166,81 @@
             hotQuestions.sort((a, b) => a.order - b.order);
 
             container.innerHTML = '<span class="hero-hot-title">热门问题：</span>' +
-                hotQuestions.map(h => `<button class="hero-hot-tag">${h.title}</button>`).join('');
+                hotQuestions.map(h => `<button class="hero-hot-tag" data-title="${h.title}">${h.title}</button>`).join('');
+        }
+
+        // ============================================
+        // Search Functions
+        // ============================================
+        function performSearch(keyword) {
+            const results = DataStore.search(keyword);
+            const resultsSection = document.getElementById('searchResultsSection');
+            const resultsList = document.getElementById('searchResultsList');
+            const resultsCount = document.getElementById('searchResultsCount');
+            const categorySection = document.getElementById('categorySection');
+
+            if (!keyword.trim()) {
+                resultsSection.style.display = 'none';
+                categorySection.style.display = 'block';
+                return;
+            }
+
+            if (results.length === 0) {
+                resultsList.innerHTML = `
+                    <div style="text-align:center;padding:40px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:48px;height:48px;color:#999;margin-bottom:16px;">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <p style="color:var(--color-text-tertiary);">未找到相关结果</p>
+                        <p style="color:var(--color-text-tertiary);font-size:14px;margin-top:8px;">请尝试其他关键词</p>
+                    </div>
+                `;
+            } else {
+                resultsList.innerHTML = results.map(item => {
+                    const icon = item.type === 'category' 
+                        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'
+                        : (item.type === 'directory' 
+                            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>'
+                            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>');
+                    
+                    const typeLabel = item.type === 'category' ? '分类' : (item.type === 'directory' ? '目录' : '文章');
+                    const typeColor = item.type === 'category' ? 'var(--color-primary)' : (item.type === 'directory' ? '#F59E0B' : 'var(--color-success)');
+
+                    return `
+                        <a href="${item.url}" class="search-result-item">
+                            <div class="search-result-icon" style="background:${typeColor};opacity:0.1;">${icon}</div>
+                            <div class="search-result-content">
+                                <h4 class="search-result-title">${item.title}</h4>
+                                <p class="search-result-desc">${item.description}</p>
+                                ${item.typeName ? `<span class="search-result-type" style="color:${typeColor}">${typeLabel} · ${item.typeName}</span>` : `<span class="search-result-type" style="color:${typeColor}">${typeLabel}</span>`}
+                            </div>
+                            <svg class="search-result-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 18 15 12 9 6"/>
+                            </svg>
+                        </a>
+                    `;
+                }).join('');
+            }
+
+            resultsCount.textContent = `共找到 ${results.length} 个结果`;
+            resultsSection.style.display = 'block';
+            categorySection.style.display = 'none';
         }
 
         // ============================================
         // Real-time Data Synchronization
         // ============================================
-        function refreshAllData() {
-            DataStore.load();
+        async function refreshAllData() {
+            await DataStore.load();
             loadCategories();
             loadHotQuestions();
         }
 
+        // ============================================
+        // Event Listeners
+        // ============================================
+        
         // Listen for storage changes from other tabs/windows (admin.html)
         window.addEventListener('storage', function(e) {
             if (e.key === 'qaui_admin_data') {
@@ -1037,42 +1255,55 @@
             refreshAllData();
         });
 
-        // ============================================
-        // Initial Data Load
-        // ============================================
+        // Event delegation for category cards
+        document.getElementById('categoryGrid').addEventListener('click', function(e) {
+            const card = e.target.closest('.category-card');
+            if (card) {
+                const typeId = card.dataset.typeId;
+                window.location.href = `subquestion.html?category=${encodeURIComponent(typeId)}`;
+            }
+        });
+
+        // Search input event
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', function(e) {
+            performSearch(e.target.value);
+        });
+
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                performSearch(e.target.value);
+            }
+        });
+
+        // Hot question tag click - fill to search and search
+        document.addEventListener('click', function(e) {
+            const hotTag = e.target.closest('.hero-hot-tag');
+            if (hotTag) {
+                const title = hotTag.dataset.title || hotTag.textContent;
+                searchInput.value = title;
+                DataStore.load().then(() => {
+                    performSearch(title);
+                });
+            }
+        });
+
+        // Clear search button
+        document.getElementById('clearSearchBtn').addEventListener('click', function() {
+            searchInput.value = '';
+            performSearch('');
+            searchInput.focus();
+        });
+
+        // ========== 初始化 ==========
         document.addEventListener('DOMContentLoaded', function() {
-            DataStore.load();
-            loadCategories();
-            loadHotQuestions();
-        });
-
-        // Category click handler - navigate to subquestion page
-        document.querySelectorAll('.category-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const category = card.dataset.category;
-                window.location.href = `subquestion.html?category=${category}`;
-            });
-        });
-
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            if (searchTerm.length > 0) {
-                // Simple search - could be enhanced
-                console.log('Searching for:', searchTerm);
-            }
-        });
-
-        // Hot question tags click handler (delegated)
-        document.querySelector('.hero-hot-row').addEventListener('click', function(e) {
-            if (e.target.classList.contains('hero-hot-tag')) {
-                document.getElementById('searchInput').value = e.target.textContent;
-            }
+            refreshAllData();
         });
 
         // Background color picker
-        document.getElementById('bgColorPicker').addEventListener('input', function(e) {
-            const color = e.target.value;
+        var bgColorPicker = document.getElementById('bgColorPicker');
+
+        function applyHeroBgColor(color) {
             const heroSection = document.querySelector('.hero-section');
             heroSection.style.background = `
                 linear-gradient(135deg, ${color} 0%, ${adjustColor(color, -20)} 30%, ${adjustColor(color, -40)} 60%, ${adjustColor(color, -60)} 100%),
@@ -1084,7 +1315,33 @@
                 0 0 80px ${hexToRgba(color, 0.2)},
                 inset 0 1px 0 rgba(255, 255, 255, 0.15)
             `;
+        }
+
+        bgColorPicker.addEventListener('input', function(e) {
+            var color = e.target.value;
+            applyHeroBgColor(color);
+            // 同步保存到外观设置
+            try {
+                var saved = localStorage.getItem('qaui_appearance_settings');
+                var settings = saved ? JSON.parse(saved) : {};
+                settings.heroBg = color;
+                localStorage.setItem('qaui_appearance_settings', JSON.stringify(settings));
+            } catch(e) {}
         });
+
+        // 页面加载时，从外观设置读取已保存的背景色并应用
+        (function applySavedHeroBg() {
+            try {
+                var saved = localStorage.getItem('qaui_appearance_settings');
+                if (saved) {
+                    var s = JSON.parse(saved);
+                    if (s.heroBg) {
+                        bgColorPicker.value = s.heroBg;
+                        applyHeroBgColor(s.heroBg);
+                    }
+                }
+            } catch(e) {}
+        })();
 
         function adjustColor(hex, amount) {
             const num = parseInt(hex.replace('#', ''), 16);

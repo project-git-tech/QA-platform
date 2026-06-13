@@ -1,0 +1,7 @@
+node_modules/
+backend/database.sqlite
+*.log
+.DS_Store
+.trae/
+temp-skill-repo/
+.env
