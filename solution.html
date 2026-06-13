@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTDS常见问题自查助手 - 解决方案</title>
+    <style>
+        :root {
+            --color-primary: #7A5D38;
+            --color-primary-light: #9A7B53;
+            --color-primary-dark: #5D4528;
+            --color-secondary: #1F2937;
+            --color-accent: #D4AF37;
+            --color-success: #10B981;
+            --color-bg-primary: #F5F3EF;
+            --color-bg-secondary: #FFFFFF;
+            --color-text-primary: #1F2937;
+            --color-text-secondary: #4B5563;
+            --color-text-tertiary: #6B7280;
+            --color-border: #E5E7EB;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 12px rgba(122, 93, 56, 0.08);
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            --font-size-sm: 14px;
+            --font-size-base: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 22px;
+            --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            min-height: 100vh;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+            padding-top: var(--spacing-xl);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(122, 93, 56, 0.15);
+        }
+
+        .logo-text {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .back-links {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            color: var(--color-primary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base);
+        }
+
+        .back-link:hover {
+            background: rgba(122, 93, 56, 0.08);
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .solution-header {
+            background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 30%, #D97706 60%, #B45309 100%);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            text-align: center;
+            color: white;
+        }
+
+        .solution-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .solution-subtitle {
+            font-size: var(--font-size-sm);
+            opacity: 0.9;
+        }
+
+        .solution-card {
+            background: var(--color-bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .solution-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .solution-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--color-primary);
+            border-radius: 2px;
+        }
+
+        .solution-step {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: var(--color-bg-primary);
+            border-radius: var(--radius-md);
+        }
+
+        .solution-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: var(--color-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .step-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        .solution-tips {
+            background: rgba(16, 185, 129, 0.08);
+            border-left: 4px solid var(--color-success);
+            padding: var(--spacing-lg);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin-top: var(--spacing-lg);
+        }
+
+        .tips-title {
+            font-weight: 600;
+            color: var(--color-success);
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .tips-title svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .tips-content {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        .contact-section {
+            text-align: center;
+            padding: var(--spacing-xl);
+            background: var(--color-bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border);
+        }
+
+        .contact-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .contact-desc {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md) var(--spacing-xl);
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: var(--spacing-xl);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-tertiary);
+        }
+    </style>
+</head>
+<body>
+    <main class="main-container" role="main">
+        <!-- Logo -->
+        <div class="logo">
+            <img src="20260613-010553.jpg" alt="Logo" class="logo-icon">
+            <span class="logo-text">MTDS常见问题自查助手</span>
+        </div>
+
+        <!-- Back Links -->
+        <div class="back-links">
+            <a href="index.html" class="back-link" id="backToHome">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                返回首页
+            </a>
+            <a href="#" class="back-link" id="backToSubquestion">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                返回问题列表
+            </a>
+        </div>
+
+        <!-- Solution Header -->
+        <section class="solution-header">
+            <h1 class="solution-title" id="solutionTitle">解决方案</h1>
+            <p class="solution-subtitle" id="solutionSubtitle">以下是针对您问题的详细解决方案</p>
+        </section>
+
+        <!-- Solution Content -->
+        <section class="solution-card" id="solutionContent">
+            <!-- Solution will be populated by JavaScript -->
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact-section">
+            <h2 class="contact-title">问题仍未解决？</h2>
+            <p class="contact-desc">如果以上解决方案未能解决您的问题，我们的专业客服团队随时为您提供帮助</p>
+            <button class="btn-primary" id="contactBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+                联系人工客服
+            </button>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>MTDS常见问题自查助手 - 为您提供专业的解决方案</p>
+        </footer>
+    </main>
+
+    <script>
+        // ========== 详细日志工具 ==========
+        const Logger = {
+            log(tag, msg, data) {
+                const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+                console.log(`[${time}] [${tag}] ${msg}`, data || '');
+            },
+            info(msg, data) { this.log('INFO', msg, data); },
+            warn(msg, data) { this.log('WARN', msg, data); },
+            error(msg, data) { this.log('ERROR', msg, data); }
+        };
+
+        // ========== DataStore - 数据存储模块 ==========
+        const DataStore = {
+            data: null,
+            
+            load() {
+                Logger.info('========== DataStore.load() 开始执行 ==========');
+                Logger.info('尝试从 localStorage 加载数据...');
+                
+                const storageKey = 'qaui_admin_data';
+                const d = localStorage.getItem(storageKey);
+                Logger.info('localStorage.getItem() 返回值:', d ? `数据长度=${d.length}` : 'null');
+                
+                if (d) {
+                    Logger.info('检测到 localStorage 有数据，尝试解析 JSON...');
+                    try {
+                        this.data = JSON.parse(d);
+                        Logger.info('JSON.parse() 成功!', {
+                            questionTypes数量: this.data.questionTypes?.length,
+                            questions数量: this.data.questions?.length,
+                            hotQuestions数量: this.data.hotQuestions?.length
+                        });
+                    } catch (e) {
+                        Logger.error('JSON.parse() 失败，回退到默认数据', e.message);
+                        this.data = this.getDefaultData();
+                    }
+                } else {
+                    Logger.warn('localStorage 没有数据，使用默认数据');
+                    this.data = this.getDefaultData();
+                }
+                
+                Logger.info('DataStore.load() 执行完成，当前数据:', this.data);
+                return this.data;
+            },
+            
+            getDefaultData() {
+                Logger.info('生成默认数据...');
+                return {
+                    questionTypes: [
+                        { id: 'type_1', name: '产品咨询', icon: 'ri-home-line', order: 1, status: true },
+                        { id: 'type_2', name: '售后服务', icon: 'ri-customer-service-line', order: 2, status: true },
+                        { id: 'type_3', name: '物流配送', icon: 'ri-truck-line', order: 3, status: true },
+                        { id: 'type_4', name: '促销活动', icon: 'ri-money-cny-circle-line', order: 4, status: true }
+                    ],
+                    questions: [
+                        { id: 'q_1', typeId: 'type_1', parentId: null, title: '衣柜产品', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
+                        { id: 'q_1_1', typeId: 'type_1', parentId: 'q_1', title: '衣柜材质选择', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
+                        { id: 'q_1_1_1', typeId: 'type_1', parentId: 'q_1_1', title: '实木衣柜优缺点', attribute: 'article', contentType: 'richtext', content: '<h3>实木衣柜优缺点分析</h3><p>实木衣柜天然环保质感好，但价格较高需定期保养。</p><ul><li>优点：天然环保、使用寿命长</li><li>缺点：价格较高、需要定期保养</li></ul>', hyperlink: null, order: 1 },
+                        { id: 'q_1_1_2', typeId: 'type_1', parentId: 'q_1_1', title: '板材衣柜对比', attribute: 'article', contentType: 'hyperlink', content: null, hyperlink: 'https://example.com/wardrobe', order: 2 },
+                        { id: 'q_2', typeId: 'type_2', parentId: null, title: '订单查询', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
+                        { id: 'q_2_1', typeId: 'type_2', parentId: 'q_2', title: '如何查询订单状态', attribute: 'article', contentType: 'richtext', content: '<h3>如何查询订单状态</h3><p>登录后进入订单中心即可查看订单状态。</p><ol><li>登录账号</li><li>进入订单中心</li><li>选择订单查看详情</li></ol>', hyperlink: null, order: 1 },
+                        { id: 'q_3', typeId: 'type_3', parentId: null, title: '配送信息', attribute: 'directory', contentType: null, content: null, hyperlink: null, order: 1 },
+                        { id: 'q_3_1', typeId: 'type_3', parentId: 'q_3', title: '配送范围查询', attribute: 'article', contentType: 'hyperlink', content: null, hyperlink: 'https://example.com/delivery', order: 1 }
+                    ],
+                    hotQuestions: []
+                };
+            },
+            
+            getQuestionById(id) {
+                Logger.info(`getQuestionById() 查找问题 ID: ${id}`);
+                if (!this.data) {
+                    Logger.warn('this.data 为空，先调用 load()');
+                    this.load();
+                }
+                const question = this.data.questions.find(q => q.id === id) || null;
+                if (question) {
+                    Logger.info(`找到问题:`, question);
+                } else {
+                    Logger.warn(`未找到 ID=${id} 的问题`);
+                }
+                return question;
+            }
+        };
+
+        // ========== URL 参数解析 ==========
+        function getParams() {
+            Logger.info('========== getParams() 开始执行 ==========');
+            const params = new URLSearchParams(window.location.search);
+            const result = {
+                category: params.get('category') || 'order',
+                question: params.get('question') || null
+            };
+            Logger.info('URL 参数解析结果:', result);
+            Logger.info('完整 URL:', window.location.href);
+            return result;
+        }
+
+        // ========== 渲染解决方案 ==========
+        function renderSolution() {
+            Logger.info('========== renderSolution() 开始执行 ==========');
+            
+            try {
+                // 1. 获取 URL 参数
+                Logger.info('步骤1: 解析 URL 参数');
+                const { question } = getParams();
+                Logger.info(`当前 question 参数: ${question || 'null'}`);
+                
+                // 2. 加载数据
+                Logger.info('步骤2: 加载数据');
+                DataStore.load();
+                
+                // 3. 查找问题
+                Logger.info('步骤3: 查找问题详情');
+                const q = question ? DataStore.getQuestionById(question) : null;
+                Logger.info(`查找到的问题对象:`, q);
+                
+                // 4. 获取 DOM 元素
+                Logger.info('步骤4: 获取 DOM 元素');
+                const titleEl = document.getElementById('solutionTitle');
+                const subtitleEl = document.getElementById('solutionSubtitle');
+                const contentEl = document.getElementById('solutionContent');
+                const backLinkEl = document.getElementById('backToSubquestion');
+                
+                Logger.info('DOM 元素获取结果:', {
+                    solutionTitle: titleEl ? '存在' : '不存在',
+                    solutionSubtitle: subtitleEl ? '存在' : '不存在',
+                    solutionContent: contentEl ? '存在' : '不存在',
+                    backToSubquestion: backLinkEl ? '存在' : '不存在'
+                });
+                
+                // 5. 如果没找到问题
+                if (!q) {
+                    Logger.warn('未找到问题，显示默认内容');
+                    titleEl.textContent = '问题详情';
+                    subtitleEl.textContent = '请从问题列表选择要查看的问题';
+                    contentEl.innerHTML = '<div class="solution-section"><div class="solution-tips"><div class="tips-title">提示</div><div class="tips-content">请从左侧问题列表选择要查看的问题。</div></div></div>';
+                    Logger.info('========== renderSolution() 执行完成(无问题) ==========');
+                    return;
+                }
+                
+                // 6. 更新页面标题
+                Logger.info('步骤6: 更新页面标题和副标题');
+                titleEl.textContent = q.title;
+                subtitleEl.textContent = '问题详情';
+                Logger.info(`更新后的标题: ${q.title}`);
+                
+                // 7. 更新返回链接
+                Logger.info('步骤7: 更新返回链接');
+                const params = new URLSearchParams(window.location.search);
+                const category = params.get('category') || 'order';
+                backLinkEl.href = 'subquestion.html?category=' + category;
+                Logger.info(`返回链接已更新: ${backLinkEl.href}`);
+                
+                // 8. 渲染内容
+                Logger.info('步骤8: 根据问题类型渲染内容');
+                Logger.info(`问题属性: attribute=${q.attribute}, contentType=${q.contentType}`);
+                
+                if (q.attribute === 'article') {
+                    if (q.contentType === 'hyperlink' && q.hyperlink) {
+                        // 超链接类型
+                        Logger.info('渲染类型: 超链接，将跳转到:', q.hyperlink);
+                        contentEl.innerHTML = '<div class="solution-section"><h2 class="section-title">正在跳转...</h2><div class="solution-tips"><div class="tips-title">外部链接</div><div class="tips-content">即将跳转到：' + q.hyperlink + '</div></div></div>';
+                        setTimeout(function() { 
+                            Logger.info('执行 window.open 跳转到:', q.hyperlink);
+                            window.open(q.hyperlink, '_blank'); 
+                        }, 1500);
+                    } else if (q.content) {
+                        // 富文本类型
+                        Logger.info('渲染类型: 富文本内容，长度:', q.content.length);
+                        contentEl.innerHTML = '<div class="solution-section"><h2 class="section-title">文章内容</h2><div class="rich-content" style="line-height:1.8;font-size:16px;color:var(--color-text-primary);">' + q.content + '</div></div>';
+                    } else {
+                        Logger.warn('渲染类型: 文章但没有内容');
+                        contentEl.innerHTML = '<div class="solution-section"><div class="solution-tips"><div class="tips-title">提示</div><div class="tips-content">该问题暂无详细内容。</div></div></div>';
+                    }
+                } else {
+                    // 目录类型
+                    Logger.info('渲染类型: 目录类型');
+                    contentEl.innerHTML = '<div class="solution-section"><h2 class="section-title">问题分类</h2><div class="solution-tips"><div class="tips-title">提示</div><div class="tips-content">这是一个分类目录，请点击子问题查看具体内容。</div></div></div>';
+                }
+                
+                Logger.info('========== renderSolution() 执行完成 ==========');
+                
+            } catch (e) {
+                Logger.error('renderSolution() 执行出错!', e.message);
+                Logger.error('错误堆栈:', e.stack);
+            }
+        }
+
+        // ========== 事件监听器 ==========
+        Logger.info('注册 contactBtn 点击事件');
+        document.getElementById('contactBtn').addEventListener('click', function() {
+            Logger.info('contactBtn 被点击');
+            alert('正在为您转接人工客服...');
+        });
+
+        // ========== 初始化 ==========
+        Logger.info('注册 DOMContentLoaded 事件');
+        document.addEventListener('DOMContentLoaded', function() {
+            Logger.info('========== DOMContentLoaded 事件触发 ==========');
+            renderSolution();
+        });
+        
+        // 额外: 页面卸载时打印日志
+        window.addEventListener('beforeunload', function() {
+            Logger.info('页面即将卸载');
+        });
+    </script>
+</body>
+</html>
