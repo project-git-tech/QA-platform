@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书登录测试 - QAUI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        #auth-area {
+            margin-top: 20px;
+        }
+        
+        /* 未登录状态 */
+        #login-btn button {
+            background: linear-gradient(135deg, #3370ff 0%, #165dff 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(51, 112, 255, 0.4);
+        }
+        
+        #login-btn button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(51, 112, 255, 0.6);
+        }
+        
+        /* 已登录状态 */
+        #user-info {
+            display: none;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        #user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #3370ff;
+        }
+        
+        .user-details {
+            text-align: left;
+        }
+        
+        #user-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        #user-email {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: #3370ff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #165dff;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-danger {
+            background: #f53f3f;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #cb2636;
+        }
+        
+        .btn-success {
+            background: #00b365;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #009e59;
+        }
+        
+        /* 状态提示 */
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: none;
+        }
+        
+        .status-success {
+            background: #e8ffea;
+            color: #00b365;
+            border: 1px solid #00b365;
+        }
+        
+        .status-error {
+            background: #ffecec;
+            color: #f53f3f;
+            border: 1px solid #f53f3f;
+        }
+        
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 6px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 调试信息 */
+        .debug-info {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .debug-info summary {
+            cursor: pointer;
+            color: #3370ff;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 飞书登录测试</h1>
+        <p class="subtitle">QAUI 答疑系统 - 飞书账号集成</p>
+        
+        <!-- 认证区域 -->
+        <div id="auth-area">
+            <!-- 未登录：显示登录按钮 -->
+            <div id="login-btn" style="display:none;">
+                <button onclick="handleLogin()">
+                    🚀 使用飞书账号登录
+                </button>
+                <p style="margin-top: 15px; color: #999; font-size: 12px;">
+                    点击后将跳转到飞书授权页面
+                </p>
+            </div>
+            
+            <!-- 已登录：显示用户信息和操作按钮 -->
+            <div id="user-info" style="display:none;">
+                <div class="user-profile">
+                    <img id="user-avatar" src="" alt="用户头像">
+                    <div class="user-details">
+                        <span id="user-name"></span>
+                        <span id="user-email"></span>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="goToServiceDesk()">
+                        💬 进入服务台
+                    </button>
+                    <button class="btn btn-success" onclick="goToServiceDeskWithContext()">
+                        🚀 智能跳转服务台
+                    </button>
+                    <button class="btn btn-secondary" onclick="refreshStatus()">
+                        🔄 刷新状态
+                    </button>
+                    <button class="btn btn-danger" onclick="handleLogout()">
+                        🚪 退出登录
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 状态消息 -->
+            <div id="status-message" class="status-message"></div>
+        </div>
+        
+        <!-- 调试信息（开发用） -->
+        <details class="debug-info">
+            <summary>📋 调试信息</summary>
+            <pre id="debug-content">加载中...</pre>
+        </details>
+    </div>
+
+    <script>
+        // API 基础地址（根据实际情况调整）
+        const API_BASE = '/api';
+        
+        /**
+         * 页面加载时检查登录状态
+         */
+        async function checkAuth() {
+            try {
+                showLoading('正在检查登录状态...');
+                
+                const response = await fetch(`${API_BASE}/auth/me`);
+                const data = await response.json();
+                
+                updateDebugInfo('GET /api/auth/me', data);
+                
+                if (data.loggedIn) {
+                    showLoggedIn(data.user);
+                    showSuccess(`欢迎回来，${data.user.name}！`);
+                } else {
+                    showLoggedOut();
+                    if (data.message) {
+                        showInfo(data.message);
+                    }
+                }
+            } catch (error) {
+                console.error('检查登录状态失败:', error);
+                showError('网络错误，请检查后端服务是否启动');
+                showLoggedOut();
+            }
+        }
+        
+        /**
+         * 处理登录 - 跳转到飞书授权页面
+         */
+        function handleLogin() {
+            showInfo('正在跳转到飞书...');
+            
+            // 方式1: 直接跳转（推荐）
+            window.location.href = `${API_BASE}/auth/login`;
+            
+            // 方式2: 新窗口打开（可选）
+            // window.open(`${API_BASE}/auth/login`, '_blank');
+        }
+        
+        /**
+         * 处理登出
+         */
+        async function handleLogout() {
+            try {
+                showLoading('正在登出...');
+                
+                const response = await fetch(`${API_BASE}/auth/logout`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                updateDebugInfo('POST /api/auth/logout', data);
+                
+                if (data.success) {
+                    showLoggedOut();
+                    showSuccess('已成功登出');
+                } else {
+                    showError(data.message || '登出失败');
+                }
+            } catch (error) {
+                console.error('登出失败:', error);
+                showError('网络错误');
+            }
+        }
+        
+        /**
+         * 刷新状态
+         */
+        function refreshStatus() {
+            checkAuth();
+        }
+        
+        /**
+         * 进入服务台（完整实现）
+         * 
+         * 实现逻辑：
+         * 1. 调用后端API获取跳转URL
+         * 2. 优先尝试 feishu:// URL Scheme（打开客户端）
+         * 3. 如果失败，降级到网页版飞书
+         */
+        async function goToServiceDesk() {
+            try {
+                showLoading('正在准备跳转到服务台...');
+                
+                // Step 1: 获取服务台跳转链接
+                const response = await fetch(`${API_BASE}/auth/service-desk-url`);
+                const data = await response.json();
+                
+                updateDebugInfo('GET /api/auth/service-desk-url', data);
+                
+                if (!data.success) {
+                    // 未登录或其他错误
+                    if (response.status === 401) {
+                        showError('请先登录后才能访问服务台');
+                    } else {
+                        showError(data.message || '获取服务台链接失败');
+                    }
+                    return;
+                }
+                
+                const { primaryUrl, fallbackUrl, serviceDesk } = data.data;
+                
+                // Step 2: 尝试使用 URL Scheme 打开飞书客户端
+                showInfo(`正在打开 ${serviceDesk.name}...`);
+                
+                // 创建一个隐藏的iframe来检测URL Scheme是否可用
+                let clientOpened = false;
+                const timeout = setTimeout(() => {
+                    if (!clientOpened) {
+                        console.log('[ServiceDesk] 飞书客户端未检测到，降级到网页版');
+                        window.open(fallbackUrl, '_blank');
+                        showSuccess(`已为您打开网页版飞书，请在消息列表中找到"${serviceDesk.name}"`);
+                    }
+                }, 3000); // 3秒超时
+                
+                try {
+                    // 尝试打开 feishu:// URL
+                    window.location.href = primaryUrl;
+                    clientOpened = true;
+                    clearTimeout(timeout);
+                    showSuccess(`正在启动飞书客户端并打开${serviceDesk.name}...`);
+                    
+                    // 记录调试信息
+                    updateDebugInfo('ServiceDesk跳转', {
+                        action: 'open_feishu_client',
+                        url: primaryUrl,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                } catch (error) {
+                    // URL Scheme 失败，使用降级方案
+                    clearTimeout(timeout);
+                    console.warn('[ServiceDesk] URL Scheme失败:', error);
+                    window.open(fallbackUrl, '_blank');
+                    showSuccess(`已为您打开网页版飞书`);
+                }
+                
+            } catch (error) {
+                console.error('[ServiceDesk] 跳转失败:', error);
+                showError('服务台跳转失败，请稍后重试');
+            }
+        }
+        
+        /**
+         * 智能跳转服务台（增强版 - 带消息卡片）
+         * 
+         * 相比普通跳转的优势：
+         * 1. 向服务台发送结构化消息卡片
+         * 2. 携带用户当前浏览的问题上下文
+         * 3. 服务台客服可以立即看到用户来源和需求
+         */
+        async function goToServiceDeskWithContext() {
+            try {
+                showLoading('正在准备智能跳转到服务台...');
+                
+                // Step 1: 构建用户上下文（可选）
+                // 这里可以获取用户当前浏览的页面信息
+                const context = {
+                    currentQuestion: 'QAUI答疑系统', // 可以动态获取
+                    currentPage: window.location.pathname,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Step 2: 调用增强版API
+                const response = await fetch(`${API_BASE}/auth/service-desk-with-context`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ context })
+                });
+                
+                const data = await response.json();
+                
+                updateDebugInfo('POST /api/auth/service-desk-with-context', data);
+                
+                if (!data.success) {
+                    if (response.status === 401) {
+                        showError('请先登录后才能访问服务台');
+                    } else {
+                        showError(data.message || '智能跳转准备失败');
+                    }
+                    return;
+                }
+                
+                const { primaryUrl, fallbackUrl, serviceDesk, messageCard } = data.data;
+                
+                // Step 3: 显示状态信息
+                if (messageCard.sent) {
+                    showSuccess(`✅ 已向${serviceDesk.name}发送咨询信息，正在打开...`);
+                } else {
+                    showInfo(`🚀 正在打开${serviceDesk.name}（消息功能待配置）...`);
+                }
+                
+                // Step 4: 执行跳转（与普通版本相同的降级逻辑）
+                let clientOpened = false;
+                const timeout = setTimeout(() => {
+                    if (!clientOpened) {
+                        console.log('[ServiceDesk-Enhanced] 飞书客户端未检测到，降级到网页版');
+                        window.open(fallbackUrl, '_blank');
+                    }
+                }, 3000);
+                
+                try {
+                    window.location.href = primaryUrl;
+                    clientOpened = true;
+                    clearTimeout(timeout);
+                    
+                    // 记录详细调试信息
+                    updateDebugInfo('ServiceDesk-Enhanced跳转', {
+                        action: 'smart_open_with_context',
+                        messageCardSent: messageCard.sent,
+                        messageId: messageCard.messageId,
+                        url: primaryUrl,
+                        userContext: data.data.userContext,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                } catch (error) {
+                    clearTimeout(timeout);
+                    console.warn('[ServiceDesk-Enhanced] URL Scheme失败:', error);
+                    window.open(fallbackUrl, '_blank');
+                }
+                
+            } catch (error) {
+                console.error('[ServiceDesk-Enhanced] 智能跳转失败:', error);
+                showError('智能服务台跳转失败，请稍后重试或使用普通跳转');
+            }
+        }
+        
+        // ========== UI 辅助函数 ==========
+        
+        function showLoggedIn(user) {
+            document.getElementById('login-btn').style.display = 'none';
+            document.getElementById('user-info').style.display = 'block';
+            
+            document.getElementById('user-avatar').src = user.avatar || 'https://via.placeholder.com/60';
+            document.getElementById('user-name').textContent = user.name || '未知用户';
+            document.getElementById('user-email').textContent = user.email || '';
+        }
+        
+        function showLoggedOut() {
+            document.getElementById('login-btn').style.display = 'block';
+            document.getElementById('user-info').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            showMessage(message, 'success');
+        }
+        
+        function showError(message) {
+            showMessage(message, 'error');
+        }
+        
+        function showInfo(message) {
+            showMessage(message, '');
+        }
+        
+        function showLoading(message) {
+            const statusEl = document.getElementById('status-message');
+            statusEl.className = 'status-message';
+            statusEl.style.display = 'block';
+            statusEl.innerHTML = `<span class="loading"></span>${message}`;
+        }
+        
+        function showMessage(message, type) {
+            const statusEl = document.getElementById('status-message');
+            statusEl.style.display = 'block';
+            statusEl.textContent = message;
+            
+            if (type === 'success') {
+                statusEl.className = 'status-message status-success';
+            } else if (type === 'error') {
+                statusEl.className = 'status-message status-error';
+            } else {
+                statusEl.className = 'status-message';
+            }
+            
+            // 5秒后自动隐藏
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        function updateDebugInfo(api, data) {
+            const debugContent = document.getElementById('debug-content');
+            const timestamp = new Date().toLocaleTimeString();
+            debugContent.textContent += `\n[${timestamp}] ${api}\n${JSON.stringify(data, null, 2)}\n${'─'.repeat(50)}\n`;
+            debugContent.scrollTop = debugContent.scrollHeight;
+        }
+        
+        // 页面加载时自动检查登录状态
+        document.addEventListener('DOMContentLoaded', checkAuth);
+        
+        // 检查URL参数中的错误信息
+        const urlParams = new URLSearchParams(window.location.search);
+        const authError = urlParams.get('auth_error');
+        if (authError) {
+            showError(`登录失败: ${decodeURIComponent(authError)}`);
+        }
+    </script>
+</body>
+</html>

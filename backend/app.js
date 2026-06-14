@@ -1,11 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const session = require('express-session');
 const sequelize = require('./config/database');
 const typesRouter = require('./routes/types');
 const questionsRouter = require('./routes/questions');
 const hotRouter = require('./routes/hot');
 const serviceDeskRouter = require('./routes/service-desk');
+const authRouter = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,7 +16,20 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Session 配置（用于存储飞书登录状态）
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'qaui-feishu-session-secret-2024',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // 生产环境必须HTTPS
+    httpOnly: true, // 防止XSS攻击
+    maxAge: 24 * 60 * 60 * 1000 // 24小时过期
+  }
+}));
+
 // API 路由
+app.use('/api/auth', authRouter);
 app.use('/api/types', typesRouter);
 app.use('/api/questions', questionsRouter);
 app.use('/api/hot', hotRouter);
@@ -65,11 +80,12 @@ app.post('/api/init', async (req, res) => {
   }
 });
 
-// 托管前端静态文件（生产环境）
+// 托管前端静态文件（开发+生产环境都启用）
+const frontendPath = path.join(__dirname, '..');
+app.use(express.static(frontendPath));
+
+// SPA 兜底：所有非 API 请求都返回 index.html（仅生产环境）
 if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '..');
-  app.use(express.static(frontendPath));
-  // SPA 兜底：所有非 API 请求都返回 index.html
   app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
       res.sendFile(path.join(frontendPath, 'index.html'));
