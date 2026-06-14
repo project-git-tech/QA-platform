@@ -3,7 +3,7 @@ const { QuestionType, Question, HotQuestion } = require('./models');
 
 async function initData() {
   try {
-    await sequelize.sync({ force: false });
+    await sequelize.sync({ force: false});
     
     // 检查是否已有数据
     const existingTypes = await QuestionType.count();
