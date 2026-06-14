@@ -1052,9 +1052,9 @@
             async load() {
                 try {
                     const [typesRes, questionsRes, hotRes] = await Promise.all([
-                        fetch('http://localhost:3000/api/types'),
-                        fetch('http://localhost:3000/api/questions'),
-                        fetch('http://localhost:3000/api/hot')
+                        fetch('/api/types'),
+                        fetch('/api/questions'),
+                        fetch('/api/hot')
                     ]);
                     this.questionTypes = await typesRes.json() || [];
                     this.questions = await questionsRes.json() || [];

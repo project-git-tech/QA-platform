@@ -612,9 +612,9 @@ const DS = {
     async load() {
         try {
             const [typesRes, questionsRes, hotRes] = await Promise.all([
-                fetch('http://localhost:3000/api/types'),
-                fetch('http://localhost:3000/api/questions'),
-                fetch('http://localhost:3000/api/hot')
+                fetch('/api/types'),
+                fetch('/api/questions'),
+                fetch('/api/hot')
             ]);
             this.questionTypes = await typesRes.json() || [];
             this.questions = await questionsRes.json() || [];
@@ -644,14 +644,14 @@ const DS = {
         try {
             await Promise.all([
                 ...this.questionTypes.map(t => 
-                    fetch(`http://localhost:3000/api/types/${t.id}`, {
+                    fetch(`/api/types/${t.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(t)
                     })
                 ),
                 ...this.questions.map(q => 
-                    fetch(`http://localhost:3000/api/questions/${q.id}`, {
+                    fetch(`/api/questions/${q.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(q)
@@ -660,7 +660,7 @@ const DS = {
                 ...this.hotQuestions.map(h => {
                     // 根据 _isNew 标记决定使用 POST 还是 PUT
                     const method = h._isNew ? 'POST' : 'PUT';
-                    const url = h._isNew ? 'http://localhost:3000/api/hot' : `http://localhost:3000/api/hot/${h.id}`;
+                    const url = h._isNew ? '/api/hot' : `/api/hot/${h.id}`;
                     return fetch(url, {
                         method: method,
                         headers: { 'Content-Type': 'application/json' },
@@ -681,7 +681,7 @@ const DS = {
     },
     async addQuestionType(type) {
         try {
-            const res = await fetch('http://localhost:3000/api/types', {
+            const res = await fetch('/api/types', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(type)
@@ -694,7 +694,7 @@ const DS = {
     },
     async updateQuestionType(type) {
         try {
-            const res = await fetch(`http://localhost:3000/api/types/${type.id}`, {
+            const res = await fetch(`/api/types/${type.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(type)
@@ -707,7 +707,7 @@ const DS = {
     },
     async deleteQuestionType(id) {
         try {
-            await fetch(`http://localhost:3000/api/types/${id}`, {
+            await fetch(`/api/types/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -717,7 +717,7 @@ const DS = {
     },
     async addQuestion(question) {
         try {
-            const res = await fetch('http://localhost:3000/api/questions', {
+            const res = await fetch('/api/questions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(question)
@@ -730,7 +730,7 @@ const DS = {
     },
     async updateQuestion(question) {
         try {
-            const res = await fetch(`http://localhost:3000/api/questions/${question.id}`, {
+            const res = await fetch(`/api/questions/${question.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(question)
@@ -743,7 +743,7 @@ const DS = {
     },
     async deleteQuestion(id) {
         try {
-            await fetch(`http://localhost:3000/api/questions/${id}`, {
+            await fetch(`/api/questions/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -753,7 +753,7 @@ const DS = {
     },
     async addHotQuestion(hq) {
         try {
-            const res = await fetch('http://localhost:3000/api/hot', {
+            const res = await fetch('/api/hot', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(hq)
@@ -766,7 +766,7 @@ const DS = {
     },
     async updateHotQuestion(hq) {
         try {
-            const res = await fetch(`http://localhost:3000/api/hot/${hq.id}`, {
+            const res = await fetch(`/api/hot/${hq.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(hq)
@@ -779,7 +779,7 @@ const DS = {
     },
     async deleteHotQuestion(id) {
         try {
-            await fetch(`http://localhost:3000/api/hot/${id}`, {
+            await fetch(`/api/hot/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -1606,7 +1606,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ========== 服务台链接管理 ==========
 async function loadServiceDeskUrl() {
     try {
-        const res = await fetch('http://localhost:3000/api/service-desk');
+        const res = await fetch('/api/service-desk');
         const data = await res.json();
         document.getElementById('serviceDeskUrl').value = data.url || '';
         document.getElementById('serviceDeskStatus').style.display = 'none';
@@ -1618,7 +1618,7 @@ async function loadServiceDeskUrl() {
 async function saveServiceDeskUrl() {
     const url = document.getElementById('serviceDeskUrl').value.trim();
     try {
-        await fetch('http://localhost:3000/api/service-desk', {
+        await fetch('/api/service-desk', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url })
