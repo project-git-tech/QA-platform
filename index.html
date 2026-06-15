@@ -631,6 +631,89 @@
             border-radius: var(--radius-full);
         }
 
+        /* ========== Skeleton Loading ========== */
+        @keyframes skeleton-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .skeleton-card {
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-md);
+        }
+
+        .skeleton-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+            animation: skeleton-pulse 1.5s ease-in-out infinite;
+        }
+
+        .skeleton-line {
+            height: 16px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #e5e7eb, #d1d5db, #e5e7eb);
+            background-size: 200% 100%;
+            animation: skeleton-pulse 1.5s ease-in-out infinite;
+        }
+
+        .skeleton-line.title {
+            width: 60%;
+            height: 18px;
+        }
+
+        .skeleton-line.desc {
+            width: 85%;
+            height: 14px;
+        }
+
+        .skeleton-line.short {
+            width: 40%;
+            height: 14px;
+        }
+
+        #categoryGrid.loading .skeleton-card,
+        #categoryGrid:empty + .skeleton-container .skeleton-card {
+            display: flex;
+        }
+
+        /* Loading overlay on hero section */
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 0;
+            font-size: 13px;
+            color: var(--color-text-tertiary);
+        }
+
+        .loading-indicator .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            animation: dot-bounce 1.2s ease-in-out infinite;
+        }
+
+        .loading-indicator .dot:nth-child(2) { animation-delay: 0.15s; }
+        .loading-indicator .dot:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes dot-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
         /* Subquestion Section */
         .subquestion-section, .solution-section {
             display: none;
@@ -1036,8 +1119,29 @@
         <section class="category-section" id="categorySection">
             <h2 class="section-title">问题类型</h2>
             <p class="section-subtitle">选择您遇到的问题类型，快速找到解决方案</p>
+            <div class="loading-indicator" id="pageLoading" style="display:none;">
+                <span>正在加载数据</span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
             <div class="category-grid" id="categoryGrid">
-                <!-- Categories loaded dynamically from localStorage -->
+                <!-- 骨架屏占位 - 数据加载完成后替换 -->
+                <div class="skeleton-card">
+                    <div class="skeleton-icon"></div>
+                    <div class="skeleton-line title"></div>
+                    <div class="skeleton-line desc"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-icon"></div>
+                    <div class="skeleton-line title"></div>
+                    <div class="skeleton-line desc"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-icon"></div>
+                    <div class="skeleton-line title"></div>
+                    <div class="skeleton-line desc"></div>
+                </div>
             </div>
         </section>
     </main>
@@ -1049,18 +1153,49 @@
             questions: [],
             hotQuestions: [],
             
-            async load() {
+            async load(retryCount = 0) {
+                const MAX_RETRIES = 3;
+                const RETRY_DELAY = 3000; // 3秒重试间隔（适应冷启动）
+                
                 try {
                     const [typesRes, questionsRes, hotRes] = await Promise.all([
                         fetch('/api/types'),
                         fetch('/api/questions'),
                         fetch('/api/hot')
                     ]);
+                    
+                    // 检查是否有请求失败
+                    const allOk = typesRes.ok && questionsRes.ok && hotRes.ok;
+                    if (!allOk) {
+                        throw new Error('部分API请求失败');
+                    }
+                    
                     this.questionTypes = await typesRes.json() || [];
                     this.questions = await questionsRes.json() || [];
                     this.hotQuestions = await hotRes.json() || [];
+                    
+                    console.log('[DataStore] 数据加载成功', {
+                        types: this.questionTypes.length,
+                        questions: this.questions.length,
+                        hot: this.hotQuestions.length
+                    });
+                    
                 } catch (error) {
-                    console.error('数据加载失败:', error);
+                    console.error(`[DataStore] 数据加载失败 (第${retryCount + 1}次尝试):`, error.message);
+                    
+                    // 重试机制（冷启动场景下服务器可能需要时间唤醒）
+                    if (retryCount < MAX_RETRIES) {
+                        const indicator = document.getElementById('pageLoading');
+                        if (indicator) {
+                            indicator.querySelector('span').textContent = 
+                                `正在唤醒服务器 (${retryCount + 1}/${MAX_RETRIES})`;
+                        }
+                        
+                        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+                        return this.load(retryCount + 1);
+                    }
+                    
+                    // 最终失败，使用空数据
                     this.questionTypes = [];
                     this.questions = [];
                     this.hotQuestions = [];
@@ -1132,7 +1267,11 @@
             const types = DataStore.getQuestionTypes().filter(t => t.status);
 
             if (types.length === 0) {
-                grid.innerHTML = '<div class="empty-state"><p style="color:var(--color-text-tertiary);padding:40px;text-align:center;">暂无问题类型，请到后台配置</p></div>';
+                grid.innerHTML = `<div class="empty-state">
+                    <p style="color:var(--color-text-tertiary);padding:40px;text-align:center;">
+                        数据加载失败，请<a href="javascript:refreshAllData()" style="color:var(--color-primary);text-decoration:underline;">点击重试</a>
+                    </p>
+                </div>`;
                 return;
             }
 
@@ -1232,7 +1371,19 @@
         // Real-time Data Synchronization
         // ============================================
         async function refreshAllData() {
-            await DataStore.load();
+            const indicator = document.getElementById('pageLoading');
+            const grid = document.getElementById('categoryGrid');
+            
+            // 显示加载状态
+            if (indicator) indicator.style.display = 'flex';
+            
+            try {
+                await DataStore.load();
+            } finally {
+                // 隐藏加载状态
+                if (indicator) indicator.style.display = 'none';
+            }
+            
             loadCategories();
             loadHotQuestions();
         }
