@@ -642,42 +642,55 @@ const DS = {
     },
     async save() {
         try {
-            await Promise.all([
-                ...this.questionTypes.map(t => 
-                    fetch(`/api/types/${t.id}`, {
+            const requests = [];
+            
+            // 只保存被修改的数据
+            this.questionTypes.forEach(t => {
+                if (t._modified) {
+                    requests.push(fetch(`/api/types/${t.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(t)
-                    })
-                ),
-                ...this.questions.map(q => 
-                    fetch(`/api/questions/${q.id}`, {
+                    }).then(() => { delete t._modified; }));
+                }
+            });
+            
+            this.questions.forEach(q => {
+                if (q._modified) {
+                    requests.push(fetch(`/api/questions/${q.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(q)
-                    })
-                ),
-                ...this.hotQuestions.map(h => {
-                    // 根据 _isNew 标记决定使用 POST 还是 PUT
+                    }).then(() => { delete q._modified; }));
+                }
+            });
+            
+            this.hotQuestions.forEach(h => {
+                if (h._modified || h._isNew) {
                     const method = h._isNew ? 'POST' : 'PUT';
                     const url = h._isNew ? '/api/hot' : `/api/hot/${h.id}`;
-                    return fetch(url, {
+                    requests.push(fetch(url, {
                         method: method,
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(h)
                     }).then(res => {
-                        // 保存成功后移除 _isNew 标记
-                        if (h._isNew) {
-                            delete h._isNew;
-                        }
+                        if (h._isNew) delete h._isNew;
+                        if (h._modified) delete h._modified;
                         return res;
-                    });
-                })
-            ]);
+                    }));
+                }
+            });
+            
+            if (requests.length > 0) {
+                await Promise.all(requests);
+            }
             window.dispatchEvent(new CustomEvent('dataUpdated'));
         } catch (error) {
             console.error('Failed to save data to API:', error);
         }
+    },
+    markModified(item) {
+        item._modified = true;
     },
     async addQuestionType(type) {
         try {
@@ -887,9 +900,9 @@ function saveHotQuestion() {
         h.linkId = linkId;
         h.order = order;
         h.status = status;
+        DS.markModified(h);
         toast('热门问题已更新');
     } else {
-        // 添加 _isNew 标记，以便保存时使用 POST 请求
         DS.hotQuestions.push({ id: 'hq_' + Date.now(), title, linkId, order, status, _isNew: true });
         toast('热门问题已添加');
     }
@@ -917,14 +930,18 @@ function deleteHQ(id) {
 }
 
 function toggleHQStatus(id, checked) {
-    DS.hotQuestions.find(h => h.id === id).status = checked;
+    const h = DS.hotQuestions.find(h => h.id === id);
+    h.status = checked;
+    DS.markModified(h);
     DS.save();
     toast('状态已更新');
     updateStats();
 }
 
 function updateHQOrder(id, value) {
-    DS.hotQuestions.find(h => h.id === id).order = parseInt(value) || 0;
+    const h = DS.hotQuestions.find(h => h.id === id);
+    h.order = parseInt(value) || 0;
+    DS.markModified(h);
     DS.save();
     renderHotQuestions();
 }
@@ -987,6 +1004,7 @@ async function saveQuestionType() {
             type.order = order;
             type.description = description;
             type.status = status;
+            DS.markModified(type);
             await DS.updateQuestionType(type);
             toast('问题类型已更新');
         } else {
@@ -1340,6 +1358,7 @@ async function saveQuestion() {
             q.contentType = contentType;
             q.content = content;
             q.hyperlink = hyperlink;
+            DS.markModified(q);
             await DS.updateQuestion(q);
             toast('问题已更新');
         } else {
@@ -1567,34 +1586,60 @@ function deleteSelectedImage() {
 document.addEventListener('DOMContentLoaded', function() {
     const editor = document.getElementById('richEditorContent');
     if (editor) {
-        editor.addEventListener('paste', function(e) {
+        editor.addEventListener('paste', async function(e) {
             const items = e.clipboardData && e.clipboardData.items;
             if (!items) return;
             
+            let hasImage = false;
             for (let item of items) {
                 if (item.type.indexOf('image') !== -1) {
-                    e.preventDefault();
-                    const file = item.getAsFile();
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            document.execCommand('insertImage', false, event.target.result);
-                            // 贴图后自动缩放：找到刚插入的图片，限制最大宽度
-                            setTimeout(function() {
-                                var imgs = editor.querySelectorAll('img');
-                                if (imgs.length > 0) {
-                                    var lastImg = imgs[imgs.length - 1];
-                                    // 如果图片过宽（超过容器），等比缩放到最大800px
-                                    if (lastImg.naturalWidth > 800) {
-                                        lastImg.style.maxWidth = '800px';
-                                        lastImg.style.height = 'auto';
-                                    }
+                    hasImage = true;
+                    break;
+                }
+            }
+            
+            if (hasImage) {
+                e.preventDefault();
+                toast('正在上传图片...', 'info');
+                
+                for (let item of items) {
+                    if (item.type.indexOf('image') !== -1) {
+                        const file = item.getAsFile();
+                        if (file) {
+                            try {
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                
+                                const response = await fetch('/api/upload/image', {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                
+                                const result = await response.json();
+                                if (result.success) {
+                                    document.execCommand('insertImage', false, result.url);
+                                    setTimeout(function() {
+                                        var imgs = editor.querySelectorAll('img');
+                                        if (imgs.length > 0) {
+                                            var lastImg = imgs[imgs.length - 1];
+                                            if (lastImg.naturalWidth > 800) {
+                                                lastImg.style.maxWidth = '800px';
+                                                lastImg.style.height = 'auto';
+                                            }
+                                        }
+                                    }, 50);
+                                } else {
+                                    toast('图片上传失败: ' + result.error, 'error');
                                 }
-                            }, 50);
-                        };
-                        reader.readAsDataURL(file);
+                            } catch (error) {
+                                console.error('图片上传失败:', error);
+                                toast('图片上传失败，请重试', 'error');
+                            }
+                        }
                     }
                 }
+                
+                toast('图片上传完成', 'success');
             }
         });
         
