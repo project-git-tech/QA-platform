@@ -42,7 +42,19 @@ router.post('/image', upload.single('file'), async (req, res) => {
     }
     
     const filePath = `/uploads/${req.file.filename}`;
-    res.json({ success: true, url: filePath });
+    
+    // 读取文件并转为 base64（解决 Render 文件系统临时性问题）
+    const fs = require('fs');
+    const fileBuffer = fs.readFileSync(req.file.path);
+    const base64 = fileBuffer.toString('base64');
+    const mimeType = req.file.mimetype || 'image/png';
+    const dataUrl = `data:${mimeType};base64,${base64}`;
+    
+    res.json({ 
+      success: true, 
+      url: filePath,
+      dataUrl: dataUrl  // 用于持久化到数据库
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

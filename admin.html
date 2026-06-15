@@ -1617,7 +1617,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 
                                 const result = await response.json();
                                 if (result.success) {
-                                    document.execCommand('insertImage', false, result.url);
+                                    // 使用 base64 dataUrl 存储图片，确保持久化（Render 文件系统不会丢失）
+                                    const imgSrc = result.dataUrl || result.url;
+                                    document.execCommand('insertImage', false, imgSrc);
                                     setTimeout(function() {
                                         var imgs = editor.querySelectorAll('img');
                                         if (imgs.length > 0) {
