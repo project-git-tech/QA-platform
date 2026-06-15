@@ -45,10 +45,10 @@ router.get('/:id', async (req, res) => {
     
     // 如果 content 包含大的 base64 图片，替换为引用
     if (result.content) {
-      const base64ImgRegex = /<img([^>]+)src="(data:image\/[^;]+;base64,[^"]+)"([^>]*)>/gi;
+      const base64ImgRegex = /<img\s+[^>]*src="(data:image\/[^;]+;base64,[^"]+)"[^>]*>/gi;
       let imageIndex = 0;
       
-      result.content = result.content.replace(base64ImgRegex, (match, before, src, after) => {
+      result.content = result.content.replace(base64ImgRegex, (match, src) => {
         if (src.length > 10000) {
           imageIndex++;
           const imgKey = `${id}_img_${imageIndex}`;
