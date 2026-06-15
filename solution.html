@@ -667,82 +667,78 @@
             };
         }
 
+        // 预处理富文本内容，将大 base64 图片替换为懒加载占位符
+        function preprocessRichContent(html) {
+            if (!html) return html;
+            
+            // 匹配 <img> 标签中的 base64 图片
+            const base64ImgRegex = /<img([^>]+)src="(data:image\/[^;]+;base64,[^"]+)"([^>]*)>/gi;
+            
+            let imageIndex = 0;
+            const processedHtml = html.replace(base64ImgRegex, (match, before, src, after) => {
+                // 只处理大于 10KB 的 base64 图片
+                if (src.length > 10000) {
+                    // 创建临时 Image 获取尺寸（后台解码，不影响渲染）
+                    const tempImg = new Image();
+                    tempImg.src = src;
+                    
+                    // 计算预估尺寸（使用默认宽高比 4:3）
+                    const aspectRatio = tempImg.height / tempImg.width || 0.75;
+                    
+                    imageIndex++;
+                    const placeholderId = `lazy-img-${imageIndex}`;
+                    
+                    // 返回带宽高比的占位容器
+                    return `<div class="img-lazy-placeholder" id="${placeholderId}" style="padding-top:${(aspectRatio * 100).toFixed(2)}%" data-src="${src}"></div>`;
+                }
+                return match;
+            });
+            
+            return processedHtml;
+        }
+        
         // 图片懒加载 + 错误处理
         function setupImageLoading(container) {
-            const imgs = container.querySelectorAll('.rich-content img');
+            const placeholders = container.querySelectorAll('.img-lazy-placeholder');
+            
             const lazyLoad = () => {
-                imgs.forEach(img => {
-                    if (img.dataset.lazyLoaded === 'true') return;
+                placeholders.forEach(placeholder => {
+                    if (placeholder.dataset.loaded === 'true') return;
                     
-                    // 检查是否在视口内
-                    const rect = img.getBoundingClientRect();
+                    const rect = placeholder.getBoundingClientRect();
                     const isInViewport = rect.top < window.innerHeight * 1.5 && rect.bottom > 0;
                     
                     if (isInViewport) {
-                        // 如果是 data-src，切换到实际 src
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            delete img.dataset.src;
+                        const src = placeholder.dataset.src;
+                        if (src) {
+                            const img = document.createElement('img');
+                            img.src = src;
+                            img.style.position = 'absolute';
+                            img.style.top = '0';
+                            img.style.left = '0';
+                            img.style.width = '100%';
+                            img.style.height = '100%';
+                            img.style.objectFit = 'contain';
+                            img.style.opacity = '0';
+                            img.style.transition = 'opacity 0.3s ease';
+                            
+                            img.onload = () => {
+                                img.style.opacity = '1';
+                            };
+                            
+                            img.onerror = () => {
+                                placeholder.innerHTML = '<div class="img-placeholder">&#128247; 图片加载失败<br><span style="font-size:11px;">请稍后刷新页面重试</span></div>';
+                            };
+                            
+                            placeholder.appendChild(img);
+                            placeholder.dataset.loaded = 'true';
                         }
-                        img.dataset.lazyLoaded = 'true';
-                        img.classList.remove('lazy-image');
                     }
                 });
             };
             
-            imgs.forEach(img => {
-                // 处理已加载失败的图片
-                if (img.complete && img.naturalWidth === 0) {
-                    replaceBrokenImage(img);
-                    return;
-                }
-                
-                // base64 图片超过 10KB 的进行懒加载（延迟解码）
-                if (img.src.startsWith('data:image') && img.src.length > 10000) {
-                    // 创建临时 Image 对象获取尺寸（不触发渲染）
-                    const tempImg = new Image();
-                    tempImg.onload = function() {
-                        // 计算宽高比
-                        const aspectRatio = this.height / this.width;
-                        // 设置占位容器
-                        const placeholder = document.createElement('div');
-                        placeholder.className = 'img-lazy-placeholder';
-                        placeholder.style.paddingTop = (aspectRatio * 100) + '%';
-                        
-                        // 将图片移入占位容器
-                        img.dataset.src = img.src;
-                        img.src = '';
-                        img.classList.add('lazy-image');
-                        img.style.position = 'absolute';
-                        img.style.top = '0';
-                        img.style.left = '0';
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.objectFit = 'contain';
-                        
-                        placeholder.appendChild(img);
-                        img.parentNode.replaceChild(placeholder, img);
-                        
-                        // 立即触发一次懒加载检查
-                        setTimeout(lazyLoad, 50);
-                    };
-                    tempImg.onerror = function() {
-                        // 如果无法获取尺寸，使用默认占位
-                        img.dataset.src = img.src;
-                        img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23f3f4f6" width="100" height="100"/%3E%3Ctext x="50" y="55" font-size="12" fill="%239ca3af" text-anchor="middle"%3E加载中...%3C/text%3E%3C/svg%3E';
-                        img.classList.add('lazy-image');
-                        setTimeout(lazyLoad, 50);
-                    };
-                    tempImg.src = img.src;
-                }
-                
-                img.addEventListener('error', function() {
-                    replaceBrokenImage(this);
-                });
-            });
-            
             // 初始加载一次
-            setTimeout(lazyLoad, 100);
+            setTimeout(lazyLoad, 50);
             // 滚动时加载
             window.addEventListener('scroll', lazyLoad, { passive: true });
             // 窗口大小改变时加载
@@ -838,10 +834,12 @@
                         window.open(q.hyperlink, '_blank');
                     }, 1500);
                 } else if (q.content) {
+                    // 预处理内容：将大 base64 图片替换为懒加载占位符
+                    const processedContent = preprocessRichContent(q.content);
                     contentEl.innerHTML = `
                         <div class="solution-section">
                             <h2 class="section-title">解决方案</h2>
-                            <div class="rich-content" style="line-height:1.8;font-size:16px;color:var(--color-text-primary);">${q.content}</div>
+                            <div class="rich-content" style="line-height:1.8;font-size:16px;color:var(--color-text-primary);">${processedContent}</div>
                         </div>
                     `;
                     // 绑定图片懒加载和错误处理
