@@ -281,6 +281,17 @@
             line-height: 1.6;
         }
 
+        /* 懒加载图片样式 */
+        .rich-content img.lazy-image {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: lazy-shimmer 1.5s ease-in-out infinite;
+        }
+        @keyframes lazy-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
         .contact-section {
             text-align: center;
             padding: var(--spacing-xl);
@@ -643,19 +654,55 @@
             };
         }
 
-        // 图片加载失败处理
-        function bindImageErrorHandlers(container) {
+        // 图片懒加载 + 错误处理
+        function setupImageLoading(container) {
             const imgs = container.querySelectorAll('.rich-content img');
+            const lazyLoad = () => {
+                imgs.forEach(img => {
+                    if (img.dataset.lazyLoaded === 'true') return;
+                    
+                    // 检查是否在视口内
+                    const rect = img.getBoundingClientRect();
+                    const isInViewport = rect.top < window.innerHeight * 1.5 && rect.bottom > 0;
+                    
+                    if (isInViewport) {
+                        // 如果是 data-src，切换到实际 src
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            delete img.dataset.src;
+                        }
+                        img.dataset.lazyLoaded = 'true';
+                    }
+                });
+            };
+            
             imgs.forEach(img => {
-                // 如果图片已经加载失败（complete && naturalWidth === 0）
+                // 处理已加载失败的图片
                 if (img.complete && img.naturalWidth === 0) {
                     replaceBrokenImage(img);
-                } else {
-                    img.addEventListener('error', function() {
-                        replaceBrokenImage(this);
-                    });
+                    return;
                 }
+                
+                // base64 图片超过 10KB 的进行懒加载（延迟解码）
+                if (img.src.startsWith('data:image') && img.src.length > 10000) {
+                    // 保存原始 src 到 data-src
+                    img.dataset.src = img.src;
+                    // 设置占位图（CSS 动画）
+                    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23f3f4f6" width="100" height="100"/%3E%3Ctext x="50" y="55" font-size="12" fill="%239ca3af" text-anchor="middle"%3E加载中...%3C/text%3E%3C/svg%3E';
+                    img.classList.add('lazy-image');
+                }
+                
+                img.addEventListener('error', function() {
+                    replaceBrokenImage(this);
+                });
             });
+            
+            // 初始加载一次
+            setTimeout(lazyLoad, 100);
+            // 滚动时加载
+            window.addEventListener('scroll', lazyLoad, { passive: true });
+            // 窗口大小改变时加载
+            window.addEventListener('resize', lazyLoad);
         }
         
         function replaceBrokenImage(img) {
@@ -753,8 +800,8 @@
                             <div class="rich-content" style="line-height:1.8;font-size:16px;color:var(--color-text-primary);">${q.content}</div>
                         </div>
                     `;
-                    // 绑定图片加载失败处理
-                    bindImageErrorHandlers(contentEl);
+                    // 绑定图片懒加载和错误处理
+                    setupImageLoading(contentEl);
                 } else {
                     contentEl.innerHTML = `
                         <div class="solution-section">
