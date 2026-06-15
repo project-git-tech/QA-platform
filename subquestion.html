@@ -89,6 +89,40 @@
         }
         .empty-state { padding: 40px 20px; text-align: center; color: #999; }
         .empty-state svg { width: 40px; height: 40px; margin-bottom: 8px; }
+
+        /* 骨架屏 */
+        .skeleton-card {
+            pointer-events: none;
+            animation: skeleton-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes skeleton-pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+        .skeleton-card .skeleton-icon {
+            background: #E5E0D8;
+            border-radius: 8px;
+        }
+        .skeleton-card .skeleton-title {
+            height: 16px;
+            background: #E5E0D8;
+            border-radius: 4px;
+            width: 70%;
+            margin-bottom: 8px;
+        }
+        .skeleton-card .skeleton-desc {
+            height: 12px;
+            background: #EAE5DD;
+            border-radius: 4px;
+            width: 45%;
+        }
+        .skeleton-card .skeleton-arrow {
+            background: #E5E0D8;
+            border-radius: 4px;
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
         .type-card { display: flex; align-items: center; gap: 16px; padding: 24px; background: #ffffff; border-radius: var(--radius-lg); text-decoration: none !important; color: inherit; border: 1px solid #D4CBB8; transition: all var(--transition-base); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06); }
         .type-card:hover { border-color: var(--color-primary); box-shadow: 0 6px 20px rgba(122, 93, 56, 0.15); transform: translateY(-2px); background: var(--hover-card-bg); }      .type-card-icon { width: 48px; height: 48px; background: rgba(122, 93, 56, 0.08); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .type-card-icon svg { width: 24px; height: 24px; }
@@ -181,12 +215,21 @@
         if (loadingEl) loadingEl.style.display = 'none';
         $('subquestionSection').style.opacity = '1';
 
-        // ---- 第二步：显示初始占位状态 ----
-        listEl.innerHTML =
-            '<div class="empty-state">' +
-            '  <svg viewBox="0 0 24 24" fill="none" stroke="#7A5D38" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>' +
-            '  <p>正在加载数据...</p>' +
-            '</div>';
+        // ---- 第二步：显示骨架屏（匹配最终卡片尺寸，避免布局偏移）----
+        var skeletonHTML = '';
+        // 默认生成 12 张骨架卡片（覆盖大部分场景，后续数据渲染时会替换）
+        for (var i = 0; i < 12; i++) {
+            skeletonHTML +=
+                '<div class="subquestion-card child-card skeleton-card">' +
+                '  <div class="subquestion-icon skeleton-icon" style="width:32px;height:32px;"></div>' +
+                '  <div class="subquestion-content" style="flex:1;">' +
+                '    <div class="skeleton-title"></div>' +
+                '    <div class="skeleton-desc"></div>' +
+                '  </div>' +
+                '  <div class="skeleton-arrow"></div>' +
+                '</div>';
+        }
+        listEl.innerHTML = skeletonHTML;
 
         // ---- 第三步：异步加载数据并渲染 ----
         var API = '';
