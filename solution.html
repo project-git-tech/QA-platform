@@ -667,7 +667,7 @@
             };
         }
 
-        // 预处理富文本内容，将大 base64 图片替换为懒加载占位符
+        // 预处理富文本内容，将大 base64 图片替换为懒加载占位符（不预先解码，避免阻塞）
         function preprocessRichContent(html) {
             if (!html) return html;
             
@@ -676,20 +676,11 @@
             
             let imageIndex = 0;
             const processedHtml = html.replace(base64ImgRegex, (match, before, src, after) => {
-                // 只处理大于 10KB 的 base64 图片
                 if (src.length > 10000) {
-                    // 创建临时 Image 获取尺寸（后台解码，不影响渲染）
-                    const tempImg = new Image();
-                    tempImg.src = src;
-                    
-                    // 计算预估尺寸（使用默认宽高比 4:3）
-                    const aspectRatio = tempImg.height / tempImg.width || 0.75;
-                    
                     imageIndex++;
                     const placeholderId = `lazy-img-${imageIndex}`;
-                    
-                    // 返回带宽高比的占位容器
-                    return `<div class="img-lazy-placeholder" id="${placeholderId}" style="padding-top:${(aspectRatio * 100).toFixed(2)}%" data-src="${src}"></div>`;
+                    // 使用默认宽高比 16:9（截图常用比例），避免预先解码图片
+                    return `<div class="img-lazy-placeholder" id="${placeholderId}" style="padding-top:56.25%" data-src="${src}"></div>`;
                 }
                 return match;
             });
@@ -697,8 +688,8 @@
             return processedHtml;
         }
         
-        // 图片懒加载 + 错误处理
-        function setupImageLoading(container) {
+        // 图片懒加载 + 错误处理（通过独立 API 获取图片）
+        function setupImageLoading(container, questionId) {
             const placeholders = container.querySelectorAll('.img-lazy-placeholder');
             
             const lazyLoad = () => {
@@ -709,10 +700,10 @@
                     const isInViewport = rect.top < window.innerHeight * 1.5 && rect.bottom > 0;
                     
                     if (isInViewport) {
-                        const src = placeholder.dataset.src;
-                        if (src) {
+                        const imgKey = placeholder.dataset.imgKey;
+                        if (imgKey) {
                             const img = document.createElement('img');
-                            img.src = src;
+                            img.src = `/api/questions/${questionId}/image/${imgKey}`;
                             img.style.position = 'absolute';
                             img.style.top = '0';
                             img.style.left = '0';
@@ -834,16 +825,14 @@
                         window.open(q.hyperlink, '_blank');
                     }, 1500);
                 } else if (q.content) {
-                    // 预处理内容：将大 base64 图片替换为懒加载占位符
-                    const processedContent = preprocessRichContent(q.content);
                     contentEl.innerHTML = `
                         <div class="solution-section">
                             <h2 class="section-title">解决方案</h2>
-                            <div class="rich-content" style="line-height:1.8;font-size:16px;color:var(--color-text-primary);">${processedContent}</div>
+                            <div class="rich-content" style="line-height:1.8;font-size:16px;color:var(--color-text-primary);">${q.content}</div>
                         </div>
                     `;
-                    // 绑定图片懒加载和错误处理
-                    setupImageLoading(contentEl);
+                    // 绑定图片懒加载和错误处理（图片已在服务端分离）
+                    setupImageLoading(contentEl, question);
                 } else {
                     contentEl.innerHTML = `
                         <div class="solution-section">
