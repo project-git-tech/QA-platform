@@ -1,6 +1,4 @@
 node_modules/
-backend/database.sqlite
-database.sqlite
 *.log
 .DS_Store
 .trae/
