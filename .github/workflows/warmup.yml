@@ -1,0 +1,28 @@
+name: Warmup Render API
+
+on:
+  schedule:
+    # 每5分钟运行一次（cron表达式：*/5 * * * *）
+    - cron: '*/5 * * * *'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  warmup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Warmup Render API
+        run: |
+          echo "开始预热Render API..."
+          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" https://qa-platform-1-zat2.onrender.com/api/types)
+          http_status=$(echo "$response" | grep "HTTP_STATUS" | cut -d':' -f2)
+          body=$(echo "$response" | grep -v "HTTP_STATUS")
+          
+          echo "预热时间: $(date)"
+          echo "响应状态: $http_status"
+          echo "响应数据: $body"
+          
+          if [ "$http_status" -eq 200 ]; then
+            echo "预热成功！"
+          else
+            echo "预热失败，状态码: $http_status"
+          fi
