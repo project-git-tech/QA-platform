@@ -16,7 +16,8 @@
     "pg-hstore": "^2.3.4",
     "express-session": "^1.18.0",
     "multer": "^1.4.5-lts.1",
-    "jimp": "^0.22.12"
+    "jimp": "^0.22.12",
+    "dotenv": "^16.4.5"
   },
   "engines": {
     "node": "24.x"

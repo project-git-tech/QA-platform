@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>欧派家居 - 智能客服指引 [v3-fix]</title>
+    <!-- 前后端分离配置 -->
+    <script src="config.js"></script>
 
     <style>
         :root {
@@ -1156,12 +1158,13 @@
             async load(retryCount = 0) {
                 const MAX_RETRIES = 3;
                 const RETRY_DELAY = 3000; // 3秒重试间隔（适应冷启动）
+                const API = window.API_BASE || '';  // 使用配置文件中的API地址
                 
                 try {
                     const [typesRes, questionsRes, hotRes] = await Promise.all([
-                        fetch('/api/types'),
-                        fetch('/api/questions'),
-                        fetch('/api/hot')
+                        fetch(API + '/api/types'),
+                        fetch(API + '/api/questions'),
+                        fetch(API + '/api/hot')
                     ]);
                     
                     // 检查是否有请求失败

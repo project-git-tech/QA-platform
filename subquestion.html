@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MTDS常见问题自查助手</title>
+    <!-- 前后端分离配置 -->
+    <script src="config.js"></script>
 
     <style>
         :root {
@@ -232,7 +234,7 @@
         listEl.innerHTML = skeletonHTML;
 
         // ---- 第三步：异步加载数据并渲染 ----
-        var API = '';
+        var API = window.API_BASE || '';  // 使用配置文件中的API地址
         var typesData = [];
         var questionsData = [];
         var dataReady = false;  // 数据是否已加载完成

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>欧派家居 - 后台配置管理系统</title>
+    <!-- 前后端分离配置 -->
+    <script src="config.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
 
     <style>
@@ -602,6 +604,9 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+// 前后端分离配置
+const API = window.API_BASE || '';
+
 const DS = {
     hotQuestions: [],
     questionTypes: [],
@@ -612,9 +617,9 @@ const DS = {
     async load() {
         try {
             const [typesRes, questionsRes, hotRes] = await Promise.all([
-                fetch('/api/types'),
-                fetch('/api/questions'),
-                fetch('/api/hot')
+                fetch(API + '/api/types'),
+                fetch(API + '/api/questions'),
+                fetch(API + '/api/hot')
             ]);
             this.questionTypes = await typesRes.json() || [];
             this.questions = await questionsRes.json() || [];
@@ -647,7 +652,7 @@ const DS = {
             // 只保存被修改的数据
             this.questionTypes.forEach(t => {
                 if (t._modified) {
-                    requests.push(fetch(`/api/types/${t.id}`, {
+                    requests.push(fetch(API + `/api/types/${t.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(t)
@@ -657,7 +662,7 @@ const DS = {
             
             this.questions.forEach(q => {
                 if (q._modified) {
-                    requests.push(fetch(`/api/questions/${q.id}`, {
+                    requests.push(fetch(API + `/api/questions/${q.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(q)
@@ -694,7 +699,7 @@ const DS = {
     },
     async addQuestionType(type) {
         try {
-            const res = await fetch('/api/types', {
+            const res = await fetch(API + '/api/types', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(type)
@@ -707,7 +712,7 @@ const DS = {
     },
     async updateQuestionType(type) {
         try {
-            const res = await fetch(`/api/types/${type.id}`, {
+            const res = await fetch(API + `/api/types/${type.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(type)
@@ -720,7 +725,7 @@ const DS = {
     },
     async deleteQuestionType(id) {
         try {
-            await fetch(`/api/types/${id}`, {
+            await fetch(API + `/api/types/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -730,7 +735,7 @@ const DS = {
     },
     async addQuestion(question) {
         try {
-            const res = await fetch('/api/questions', {
+            const res = await fetch(API + '/api/questions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(question)
@@ -743,7 +748,7 @@ const DS = {
     },
     async updateQuestion(question) {
         try {
-            const res = await fetch(`/api/questions/${question.id}`, {
+            const res = await fetch(API + `/api/questions/${question.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(question)
@@ -756,7 +761,7 @@ const DS = {
     },
     async deleteQuestion(id) {
         try {
-            await fetch(`/api/questions/${id}`, {
+            await fetch(API + `/api/questions/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -766,7 +771,7 @@ const DS = {
     },
     async addHotQuestion(hq) {
         try {
-            const res = await fetch('/api/hot', {
+            const res = await fetch(API + '/api/hot', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(hq)
@@ -779,7 +784,7 @@ const DS = {
     },
     async updateHotQuestion(hq) {
         try {
-            const res = await fetch(`/api/hot/${hq.id}`, {
+            const res = await fetch(API + `/api/hot/${hq.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(hq)
@@ -792,7 +797,7 @@ const DS = {
     },
     async deleteHotQuestion(id) {
         try {
-            await fetch(`/api/hot/${id}`, {
+            await fetch(API + `/api/hot/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -1610,7 +1615,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 const formData = new FormData();
                                 formData.append('file', file);
                                 
-                                const response = await fetch('/api/upload/image', {
+                                const response = await fetch(API + '/api/upload/image', {
                                     method: 'POST',
                                     body: formData
                                 });
@@ -1653,7 +1658,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ========== 服务台链接管理 ==========
 async function loadServiceDeskUrl() {
     try {
-        const res = await fetch('/api/service-desk');
+        const res = await fetch(API + '/api/service-desk');
         const data = await res.json();
         document.getElementById('serviceDeskUrl').value = data.url || '';
         document.getElementById('serviceDeskStatus').style.display = 'none';
@@ -1665,7 +1670,7 @@ async function loadServiceDeskUrl() {
 async function saveServiceDeskUrl() {
     const url = document.getElementById('serviceDeskUrl').value.trim();
     try {
-        await fetch('/api/service-desk', {
+        await fetch(API + '/api/service-desk', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url })

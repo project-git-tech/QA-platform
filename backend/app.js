@@ -1,3 +1,8 @@
+// 加载环境变量（本地开发）
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -13,7 +18,22 @@ const uploadRouter = require('./routes/upload');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// CORS配置（前后端分离部署）
+const corsOptions = {
+    origin: [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'https://qa-platform-1-zat2.onrender.com',  // Render部署地址
+        // GitHub Pages地址（部署后添加）
+        'https://yourusername.github.io',
+        'https://yourusername.github.io/qa-platform'
+    ],
+    credentials: true,  // 允许携带cookie
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
