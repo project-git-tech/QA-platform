@@ -15,8 +15,13 @@
     <h1>subquestion.html 诊断测试</h1>
     <div id="output"></div>
 
+    <!-- 引入配置文件 -->
+    <script src="config.js"></script>
+
     <script>
         var out = document.getElementById('output');
+        var API = window.API_BASE || '';  // 使用配置文件中的API地址
+        
         function log(msg, cls) {
             out.innerHTML += '<div class="step ' + (cls||'') + '">' + msg + '</div>';
         }
@@ -32,8 +37,8 @@
         ].join(' | '), 'ok');
 
         // 步骤3: 加载types
-        log('步骤3: 正在加载 /api/types ...', '');
-        fetch('/api/types')
+        log('步骤3: 正在加载 ' + API + '/api/types ...', '');
+        fetch(API + '/api/types')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 log('步骤3结果: types加载成功, 数量=' + data.length, 'ok');
@@ -45,8 +50,8 @@
             .catch(function(e) { log('步骤3失败: ' + e.message, 'err'); });
 
         function loadQuestions() {
-            log('步骤4: 正在加载 /api/questions ...', '');
-            fetch('/api/questions')
+            log('步骤4: 正在加载 ' + API + '/api/questions ...', '');
+            fetch(API + '/api/questions')
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     log('步骤4结果: questions加载成功, 数量=' + data.length, 'ok');

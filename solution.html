@@ -606,6 +606,9 @@
         </footer>
     </main>
 
+    <!-- 引入配置文件 -->
+    <script src="config.js"></script>
+
     <script>
         // 应用外观设置（从 localStorage 读取）
         (function() {
@@ -627,7 +630,7 @@
             // 加载问题列表（轻量，不含 content）
             async load() {
                 try {
-                    const res = await fetch('/api/questions');
+                    const res = await fetch(window.API_BASE + '/api/questions');
                     this.questions = await res.json() || [];
                 } catch (error) {
                     console.error('数据加载失败:', error);
@@ -638,7 +641,7 @@
             // 加载单条问题详情（含 content，用于文章页面）
             async loadQuestionDetail(id) {
                 try {
-                    const res = await fetch('/api/questions/' + id);
+                    const res = await fetch(window.API_BASE + '/api/questions/' + id);
                     if (res.ok) {
                         this.currentQuestion = await res.json();
                         return this.currentQuestion;
@@ -886,7 +889,7 @@
         var serviceDeskUrl = '';
 
         // 页面加载时获取服务台链接
-        fetch('/api/service-desk')
+        fetch(window.API_BASE + '/api/service-desk')
             .then(function(res) { return res.json(); })
             .then(function(data) { serviceDeskUrl = data.url || ''; })
             .catch(function() { /* 静默失败 */ });
