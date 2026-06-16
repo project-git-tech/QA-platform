@@ -43,7 +43,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // 数据初始化接口
-const { QuestionType, Question, HotQuestion } = require('../backend/models');
+const { QuestionType, Question, HotQuestion, Image } = require('../backend/models');
 app.post('/api/init', async (req, res) => {
   try {
     await sequelize.sync({ force: false });

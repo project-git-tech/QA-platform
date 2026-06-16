@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize');
 
-const DATABASE_URL = process.env.DATABASE_URL;
+// Vercel/Neon 使用 POSTGRES_URL，本地开发使用 DATABASE_URL 或 SQLite
+const DATABASE_URL = process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
 let sequelize;
 
