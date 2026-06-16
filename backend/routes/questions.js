@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { Question } = require('../models');
+const { Question, Image } = require('../models');
+const sequelize = require('../config/database');
 
 // 列表接口：只返回轻量字段，不含 content（避免 base64 图片导致 JSON 过大）
 router.get('/', async (req, res) => {
@@ -41,9 +42,8 @@ router.get('/:id', async (req, res) => {
     }
     
     const result = { ...question.toJSON() };
-    const imageCache = {};
     
-    // 如果 content 包含大的 base64 图片，替换为引用
+    // 如果 content 包含大的 base64 图片，替换为引用并存储到数据库
     if (result.content) {
       const base64ImgRegex = /<img\s+[^>]*src="(data:image\/[^;]+;base64,[^"]+)"[^>]*>/gi;
       let imageIndex = 0;
@@ -52,17 +52,23 @@ router.get('/:id', async (req, res) => {
         if (src.length > 10000) {
           imageIndex++;
           const imgKey = `${id}_img_${imageIndex}`;
-          imageCache[imgKey] = src;
+          
+          // 提取 MIME 类型
+          const mimeTypeMatch = src.match(/data:(image\/[^;]+)/);
+          const mimeType = mimeTypeMatch ? mimeTypeMatch[1] : 'image/png';
+          
+          // 存储图片到数据库（异步，不阻塞响应）
+          Image.upsert({
+            id: imgKey,
+            questionId: id,
+            imageData: src,
+            mimeType: mimeType
+          }).catch(err => console.error('图片存储失败:', err));
+          
           return `<div class="img-lazy-placeholder" data-img-key="${imgKey}" style="padding-top:56.25%"></div>`;
         }
         return match;
       });
-    }
-    
-    // 将图片缓存到全局变量（简化实现）
-    if (Object.keys(imageCache).length > 0) {
-      global.__imageCache = global.__imageCache || {};
-      Object.assign(global.__imageCache, imageCache);
     }
     
     res.json(result);
@@ -71,18 +77,20 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// 获取分离的图片数据
+// 获取分离的图片数据（从数据库读取）
 router.get('/:id/image/:imgKey', async (req, res) => {
   try {
     const { imgKey } = req.params;
-    const imageCache = global.__imageCache || {};
     
-    if (!imageCache[imgKey]) {
+    // 从数据库读取图片
+    const image = await Image.findByPk(imgKey);
+    
+    if (!image) {
       return res.status(404).json({ error: '图片不存在' });
     }
     
-    const src = imageCache[imgKey];
-    const mimeType = src.match(/data:(image\/[^;]+)/)[1];
+    const src = image.imageData;
+    const mimeType = image.mimeType || 'image/png';
     const base64Data = src.split(',')[1];
     const buffer = Buffer.from(base64Data, 'base64');
     
