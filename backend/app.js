@@ -25,8 +25,8 @@ const corsOptions = {
         'http://127.0.0.1:3000',
         'https://qa-platform-1-zat2.onrender.com',  // Render部署地址
         // GitHub Pages地址（部署后添加）
-        'https://yourusername.github.io',
-        'https://yourusername.github.io/qa-platform'
+        'https://project-git-tech.github.io',
+        'https://project-git-tech.github.io/qaui-platform'
     ],
     credentials: true,  // 允许携带cookie
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

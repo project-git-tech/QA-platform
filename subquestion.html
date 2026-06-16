@@ -74,58 +74,56 @@
         }
 
         :root {
-            --hover-card-bg: #EFF6FF; /* Blue 50 */
-            --hover-button-bg: #EFF6FF; /* Blue 50 */
-            --hover-link-bg: #EFF6FF; /* Blue 50 */
+            --hover-card-bg: #EFF6FF;
+            --hover-button-bg: #EFF6FF;
+            --hover-link-bg: #EFF6FF;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: var(--font-family-base); background: #EEEAE4; color: var(--color-text-primary); min-height: 100vh; }
+        body { font-family: var(--font-family-base); background: #F8FAFC; color: var(--color-text-primary); min-height: 100vh; }
         .main-container { max-width: 900px; margin: 0 auto; padding: var(--spacing-lg); padding-top: var(--spacing-xl); }
         .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; gap: var(--spacing-md); }
-        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(122, 93, 56, 0.2); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(59, 130, 246, 0.15); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { color: var(--color-text-secondary); font-size: var(--font-size-sm); }
         .logo { display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-xl); }
-        .logo-icon { width: 36px; height: 36px; border-radius: var(--radius-md); object-fit: cover; box-shadow: 0 2px 8px rgba(122, 93, 56, 0.15); }
-        .logo-text { font-size: var(--font-size-lg); font-weight: 600; color: var(--color-text-primary); }
-        .back-link { display: inline-flex; align-items: center; gap: var(--spacing-xs); color: var(--color-primary); text-decoration: none; font-size: var(--font-size-sm); margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); transition: all var(--transition-base); }
-        .back-link:hover { background: rgba(122, 93, 56, 0.08); }
+        .logo-icon { width: 36px; height: 36px; border-radius: var(--radius-md); object-fit: cover; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.12); }
+        .logo-text { font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary); letter-spacing: -0.2px; }
+        .back-link { display: inline-flex; align-items: center; gap: var(--spacing-xs); color: var(--color-primary); text-decoration: none; font-size: var(--font-size-sm); margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); transition: all var(--transition-base); font-weight: 500; }
+        .back-link:hover { background: var(--hover-link-bg); transform: translateX(-2px); }
         .back-link svg { width: 16px; height: 16px; }
         .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: var(--spacing-md); gap: var(--spacing-md); }
         .page-header-content { flex: 1; }
-        .page-title { font-size: 20px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 2px; }
-        .page-subtitle { font-size: 13px; color: var(--color-text-tertiary); }
-        .subquestion-section { background: #ffffff; border-radius: var(--radius-lg); padding: var(--spacing-lg); box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07); border: 1px solid #E2DDD3; }
+        .page-title { font-size: var(--font-size-xl); font-weight: 700; color: var(--color-text-primary); margin-bottom: 4px; letter-spacing: -0.3px; }
+        .page-subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+        .subquestion-section { background: #ffffff; border-radius: var(--radius-xl); padding: var(--spacing-lg); box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.04); border: 1px solid #E2E8F0; }
         .scene-guide { display: none; }
-        .subquestion-list { display: flex; flex-direction: column; gap: var(--spacing-md); }
-        .subquestion-card { display: flex; align-items: flex-start; gap: var(--spacing-md); padding: var(--spacing-lg); background: #ffffff; border-radius: var(--radius-md); text-decoration: none !important; color: inherit; transition: all var(--transition-base); border: 1px solid #D4CBB8; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06); }
-        .subquestion-card:hover { background: var(--hover-card-bg); border-color: var(--color-primary); box-shadow: 0 4px 16px rgba(122, 93, 56, 0.12); transform: translateX(3px); }
-        .subquestion-card.child-card { background: #FAF8F5; border-left: 4px solid #C9B896; padding-left: calc(var(--spacing-lg) + var(--spacing-md)); margin-left: var(--spacing-lg); }
-        .subquestion-card.child-card:hover { border-color: var(--color-primary); border-left-color: var(--color-primary); }
-        .subquestion-card.grandchild-card { background: #F7F5F2; border-left: 4px solid #D4CBB8; padding-left: calc(var(--spacing-lg) + var(--spacing-md) * 2); margin-left: calc(var(--spacing-lg) * 2); }
-        .subquestion-card.grandchild-card:hover { border-color: var(--color-primary); border-left-color: var(--color-primary); }
-        .subquestion-icon { width: 44px; height: 44px; background: rgba(122, 93, 56, 0.08); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all var(--transition-base); }
-        .subquestion-card:hover .subquestion-icon { background: rgba(122, 93, 56, 0.15); }
-        .subquestion-icon svg { width: 20px; height: 20px; color: var(--color-primary); }
-        .subquestion-card[data-attribute="directory"] .subquestion-icon { background: rgba(122, 93, 56, 0.15); }
-        .subquestion-card[data-attribute="article"] .subquestion-icon { background: rgba(16, 185, 129, 0.1); }
-        .subquestion-card[data-attribute="article"] .subquestion-icon svg { color: #10b981; }
+        .subquestion-list { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+        .subquestion-card { display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-md) var(--spacing-lg); background: #ffffff; border-radius: var(--radius-lg); text-decoration: none !important; color: inherit; transition: all var(--transition-base); border: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03); }
+        .subquestion-card:hover { background: var(--hover-card-bg); border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12); transform: translateX(3px); }
+        .subquestion-card.child-card { background: #F8FAFC; border-left: 3px solid #60A5FA; padding-left: calc(var(--spacing-lg) + var(--spacing-md)); margin-left: var(--spacing-lg); }
+        .subquestion-card.child-card:hover { border-color: rgba(59, 130, 246, 0.5); border-left-color: var(--color-primary); background: #EFF6FF; }
+        .subquestion-card.grandchild-card { background: #F1F5F9; border-left: 3px solid #93C5FD; padding-left: calc(var(--spacing-lg) + var(--spacing-md) * 2); margin-left: calc(var(--spacing-lg) * 2); }
+        .subquestion-card.grandchild-card:hover { border-color: rgba(59, 130, 246, 0.5); border-left-color: var(--color-primary); background: #EFF6FF; }
+        .subquestion-icon { width: 44px; height: 44px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all var(--transition-base); }
+        .subquestion-card:hover .subquestion-icon { transform: scale(1.05); }
+        .subquestion-icon svg { width: 20px; height: 20px; }
         .subquestion-content { flex: 1; min-width: 0; }
-        .subquestion-title { font-size: var(--font-size-base); font-weight: 500; color: var(--color-text-primary); margin-bottom: var(--spacing-xs); display: flex; align-items: center; gap: var(--spacing-sm); }
-        .subquestion-type-tag { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(122, 93, 56, 0.1); color: var(--color-primary); font-weight: 500; }
+        .subquestion-title { font-size: var(--font-size-base); font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; display: flex; align-items: center; gap: var(--spacing-sm); letter-spacing: -0.1px; }
+        .subquestion-type-tag { font-size: var(--font-size-xs); padding: 4px 12px; border-radius: var(--radius-full); background: rgba(59, 130, 246, 0.1); color: var(--color-primary); font-weight: 500; }
         .subquestion-card[data-attribute="article"] .subquestion-type-tag { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .subquestion-card[data-attribute="directory"] .subquestion-type-tag { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
         .subquestion-desc { font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.5; }
-        .subquestion-arrow { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--color-text-tertiary); transition: transform var(--transition-base); }
-        .subquestion-card:hover .subquestion-arrow { color: var(--color-primary); }
+        .subquestion-arrow { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--color-text-tertiary); transition: all var(--transition-base); flex-shrink: 0; }
+        .subquestion-card:hover .subquestion-arrow { color: var(--color-primary); transform: translateX(3px); }
         .footer { text-align: center; padding: var(--spacing-xl); font-size: var(--font-size-sm); color: var(--color-text-tertiary); }
-        .admin-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: 8px; font-size: var(--font-size-sm); color: var(--color-text-secondary); cursor: pointer; transition: all var(--transition-base); text-decoration: none; }
-        .admin-btn:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--hover-button-bg); }
+        .admin-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-full); font-size: var(--font-size-sm); color: var(--color-text-secondary); cursor: pointer; transition: all var(--transition-base); text-decoration: none; font-weight: 500; }
+        .admin-btn:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--hover-button-bg); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15); }
         @media (max-width: 640px) {
             .page-header { flex-direction: column; align-items: flex-start; }
             .admin-btn span { display: none; }
             .admin-btn { padding: 6px 10px; }
         }
-        .empty-state { padding: 40px 20px; text-align: center; color: #999; }
+        .empty-state { padding: 40px 20px; text-align: center; color: var(--color-text-tertiary); }
         .empty-state svg { width: 40px; height: 40px; margin-bottom: 8px; }
 
         /* 骨架屏 */
@@ -155,18 +153,20 @@
             width: 45%;
         }
         .skeleton-card .skeleton-arrow {
-            background: #E5E0D8;
+            background: #E2E8F0;
             border-radius: 4px;
             width: 16px;
             height: 16px;
             flex-shrink: 0;
         }
-        .type-card { display: flex; align-items: center; gap: 16px; padding: 24px; background: #ffffff; border-radius: var(--radius-lg); text-decoration: none !important; color: inherit; border: 1px solid #D4CBB8; transition: all var(--transition-base); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06); }
-        .type-card:hover { border-color: var(--color-primary); box-shadow: 0 6px 20px rgba(122, 93, 56, 0.15); transform: translateY(-2px); background: var(--hover-card-bg); }      .type-card-icon { width: 48px; height: 48px; background: rgba(122, 93, 56, 0.08); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .type-card { display: flex; align-items: center; gap: 16px; padding: 20px; background: #ffffff; border-radius: var(--radius-lg); text-decoration: none !important; color: inherit; border: 1px solid #E2E8F0; transition: all var(--transition-base); box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); position: relative; overflow: hidden; }
+        .type-card:hover { border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 4px 16px rgba(59, 130, 246, 0.12); transform: translateY(-2px); background: var(--hover-card-bg); }
+        .type-card-icon { width: 48px; height: 48px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all var(--transition-base); }
+        .type-card:hover .type-card-icon { transform: scale(1.05); }
         .type-card-icon svg { width: 24px; height: 24px; }
-        .type-card-name { flex: 1; font-size: var(--font-size-base); font-weight: 500; color: var(--color-text-primary); }
-        .type-card-arrow { width: 20px; height: 20px; opacity: 0.4; transition: all var(--transition-base); }
-        .type-card:hover .type-card-arrow { opacity: 1; transform: translateX(4px); }
+        .type-card-name { flex: 1; font-size: var(--font-size-base); font-weight: 500; color: var(--color-text-primary); letter-spacing: -0.1px; }
+        .type-card-arrow { width: 20px; height: 20px; opacity: 0.3; transition: all var(--transition-base); color: var(--color-text-tertiary); }
+        .type-card:hover .type-card-arrow { opacity: 1; transform: translateX(4px); color: var(--color-primary); }
     </style>
 </head>
 <body>
@@ -204,7 +204,7 @@
         <!-- Subquestion Section -->
         <section class="subquestion-section" id="subquestionSection">
             <!-- 内联提示条（动态显示） -->
-            <div id="inlineTip" style="display:none;background:#FDF8EE;border:1px solid #E8DCC8;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#6B5A3E;line-height:1.6;"></div>
+            <div id="inlineTip" style="display:none;background:#EFF6FF;border:1px solid #DBEAFE;border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:16px;font-size:var(--font-size-sm);color:var(--color-text-primary);line-height:1.6;"></div>
 
             <div class="subquestion-list" id="subquestionList"></div>
         </section>
@@ -234,6 +234,93 @@
         var descEl     = $('categoryDesc');
         var inlineTip  = $('inlineTip');
         var backEl     = $('backToParent');
+
+        // ---- 图标库（SVG path data）----
+        var richIconLibrary = {
+            question: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+            wrench:   '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+            bag:      '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+            cart:     '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>',
+            truck:    '<rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>',
+            package:  '<line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+            clock:    '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+            star:     '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+            heart:    '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',
+            tag:      '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',
+            phone:    '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+            chat:     '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+            refresh:  '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
+            file:     '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+            folder:   '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
+            info:     '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+            list:     '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
+            link:     '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+            home:     '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+            user:     '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+            money:    '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="18" y1="12" x2="18.01" y2="12"/>'
+        };
+
+        // ---- 根据问题内容匹配图标和配色 ----
+        function getQuestionIconAndColor(title, isDir, contentType) {
+            var t = (title || '').toLowerCase();
+            // 超链接类用 link 图标
+            if (!isDir && contentType === 'hyperlink') {
+                return { icon: 'link', colors: ['#6366F1', '#8B5CF6'] };
+            }
+            // 目录类用 folder 图标
+            if (isDir) {
+                return { icon: 'folder', colors: ['#8B5CF6', '#6366F1'] };
+            }
+            // 文章类根据标题关键词匹配
+            var rules = [
+                { keys: ['订单', '购买', '下单', '购物', '单据'], icon: 'bag', colors: ['#F59E0B', '#3B82F6'] },
+                { keys: ['退款', '退货', '换货', '退换', '更换', '返回'], icon: 'refresh', colors: ['#F59E0B', '#EF4444'] },
+                { keys: ['保修', '维修', '售后', '处理'], icon: 'wrench', colors: ['#10B981', '#3B82F6'] },
+                { keys: ['物流', '配送', '发货', '快递', '运输', '包裹'], icon: 'package', colors: ['#3B82F6', '#06B6D4'] },
+                { keys: ['安装', '预约', '上门', '时间', '安排'], icon: 'clock', colors: ['#8B5CF6', '#EC4899'] },
+                { keys: ['产品', '规格', '材质', '说明', '信息', '咨询'], icon: 'question', colors: ['#3B82F6', '#8B5CF6'] },
+                { keys: ['价格', '优惠', '折扣', '价钱', '促销', '活动'], icon: 'tag', colors: ['#F97316', '#F59E0B'] },
+                { keys: ['支付', '付款', '金额', '费用'], icon: 'money', colors: ['#10B981', '#8B5CF6'] },
+                { keys: ['客服', '联系', '电话', '反馈', '投诉'], icon: 'phone', colors: ['#06B6D4', '#3B82F6'] },
+                { keys: ['保养', '维护', '清洗', '保护'], icon: 'heart', colors: ['#EC4899', '#F43F5E'] },
+                { keys: ['用户', '账户', '账号', '登录', '注册'], icon: 'user', colors: ['#6366F1', '#8B5CF6'] }
+            ];
+            for (var i = 0; i < rules.length; i++) {
+                var rule = rules[i];
+                for (var j = 0; j < rule.keys.length; j++) {
+                    if (t.indexOf(rule.keys[j]) !== -1) {
+                        return { icon: rule.icon, colors: rule.colors };
+                    }
+                }
+            }
+            return { icon: 'file', colors: ['#475569', '#3B82F6'] };
+        }
+
+        // ---- 根据问题类型名称匹配图标和配色 ----
+        function getCategoryIconAndColor(name) {
+            var n = (name || '').toLowerCase();
+            var rules = [
+                { keys: ['产品', '咨询', '信息', '规格', '材质', '说明'], icon: 'question', colors: ['#3B82F6', '#8B5CF6'] },
+                { keys: ['售后', '维修', '保修', '服务', '处理'], icon: 'wrench', colors: ['#10B981', '#3B82F6'] },
+                { keys: ['订单', '购买', '下单', '购物', '数量', '单据'], icon: 'bag', colors: ['#F59E0B', '#3B82F6'] },
+                { keys: ['物流', '配送', '发货', '快递', '运输', '包裹'], icon: 'truck', colors: ['#3B82F6', '#06B6D4'] },
+                { keys: ['安装', '预约', '上门', '安排', '时间'], icon: 'clock', colors: ['#8B5CF6', '#EC4899'] },
+                { keys: ['保养', '维护', '清洗', '保护'], icon: 'heart', colors: ['#EC4899', '#F43F5E'] },
+                { keys: ['退换', '退货', '退款', '换货', '更换', '返回'], icon: 'refresh', colors: ['#F59E0B', '#EF4444'] },
+                { keys: ['价格', '优惠', '折扣', '价钱', '促销', '活动'], icon: 'tag', colors: ['#F97316', '#F59E0B'] },
+                { keys: ['客服', '联系', '电话', '咨询', '反馈', '投诉'], icon: 'phone', colors: ['#06B6D4', '#3B82F6'] },
+                { keys: ['支付', '付款', '金额', '费用', '发票', '报销'], icon: 'money', colors: ['#10B981', '#8B5CF6'] }
+            ];
+            for (var i = 0; i < rules.length; i++) {
+                var rule = rules[i];
+                for (var j = 0; j < rule.keys.length; j++) {
+                    if (n.indexOf(rule.keys[j]) !== -1) {
+                        return { icon: rule.icon, colors: rule.colors };
+                    }
+                }
+            }
+            return { icon: 'file', colors: ['#475569', '#3B82F6'] };
+        }
 
         // ---- 应用外观设置（从 localStorage 读取）----
         (function applyAppearance() {
@@ -324,7 +411,7 @@
                 inlineTip.style.display = 'none';
                 listEl.innerHTML =
                     '<div class="empty-state">' +
-                    '  <svg viewBox="0 0 24 24" fill="none" stroke="#7A5D38" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>' +
+                    '  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>' +
                     '  <p>正在加载数据...</p>' +
                     '</div>';
                 return;
@@ -401,10 +488,11 @@
                     return buildCard(q, level, category, path);
                 }).join('');
                 listEl.innerHTML = fullHtml;
+                setTimeout(setupIconHoverEffects, 0);
             } else {
                 listEl.innerHTML =
                     '<div class="empty-state">' +
-                    '  <svg viewBox="0 0 24 24" fill="none" stroke="#7A5D38" stroke-width="1.5"><path d="M9 12h6"/><path d="M12 9v6"/><circle cx="12" cy="12" r="10"/></svg>' +
+                    '  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6"/><path d="M12 9v6"/><circle cx="12" cy="12" r="10"/></svg>' +
                     '  <p>该目录下暂无内容</p>' +
                     '</div>';
             }
@@ -432,20 +520,22 @@
             inlineTip.style.display = 'block';
 
             if (typesData.length > 0) {
-                var cards = typesData.map(function(t, idx) {
-                    var icons = ['<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
-                                '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-                                '<circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m9-9h-6m-6 0H3"/>'];
-                    var icon = icons[idx % icons.length];
+                var cards = typesData.map(function(t) {
+                    // 根据问题类型名称智能匹配图标和配色
+                    var matched = getCategoryIconAndColor(t.name);
+                    var iconPath = richIconLibrary[matched.icon] || richIconLibrary.file;
+                    var gradientColor = 'linear-gradient(135deg, ' + matched.colors[0] + '1A 0%, ' + matched.colors[1] + '1A 100%)';
+                    var strokeColor = matched.colors[0];
                     return '<a href="subquestion.html?category=' + encodeURIComponent(t.id) + '" class="type-card">' +
-                        '<div class="type-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7A5D38" stroke-width="2">' + icon + '</svg></div>' +
+                        '<div class="type-card-icon" style="background:' + gradientColor + ';"><svg viewBox="0 0 24 24" fill="none" stroke="' + strokeColor + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + iconPath + '</svg></div>' +
                         '<div class="type-card-name">' + escapeHtml(t.name) + '</div>' +
-                        '<div class="type-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="#7A5D38" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>' +
+                        '<div class="type-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>' +
                     '</a>';
                 }).join('');
 
                 listEl.innerHTML =
                     '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;">' + cards + '</div>';
+                setTimeout(setupIconHoverEffects, 0);
             } else {
                 renderError('暂无问题类型数据');
             }
@@ -459,19 +549,21 @@
             listEl.innerHTML =
                 '<div class="empty-state">' +
                 '  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#f59e0b;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12" y2="14"/></svg>' +
-                '  <p style="color:#666;font-size:16px;margin-bottom:8px;">数据加载失败</p>' +
-                '  <p style="color:#999;font-size:13px;margin-bottom:16px;">' + escapeHtml(msg) + '</p>' +
-                '  <button onclick="location.reload()" style="padding:8px 20px;background:#7A5D38;color:white;border:none;border-radius:4px;cursor:pointer;">重新加载</button>' +
-                '  &nbsp;<a href="index.html" style="padding:8px 20px;background:#f3f4f6;color:#374151;border-radius:4px;text-decoration:none;">返回首页</a>' +
+                '  <p style="color:var(--color-text-secondary);font-size:var(--font-size-base);margin-bottom:8px;">数据加载失败</p>' +
+                '  <p style="color:var(--color-text-tertiary);font-size:var(--font-size-sm);margin-bottom:16px;">' + escapeHtml(msg) + '</p>' +
+                '  <button onclick="location.reload()" style="padding:8px 20px;background:var(--color-primary);color:white;border:none;border-radius:8px;cursor:pointer;font-size:var(--font-size-sm);">重新加载</button>' +
+                '  &nbsp;<a href="index.html" style="padding:8px 20px;background:#f3f4f6;color:#374151;border-radius:8px;text-decoration:none;font-size:var(--font-size-sm);">返回首页</a>' +
                 '</div>';
         }
 
         // ---- 构建卡片 HTML ----
         function buildCard(q, level, category, currentPath) {
             var isDir = q.attribute === 'directory';
-            var iconPath = isDir
-                ? '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>'
-                : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>';
+            // 智能图标匹配 - 根据标题关键词匹配不同图标和配色
+            var matched = getQuestionIconAndColor(q.title, isDir, q.contentType);
+            var iconPath = richIconLibrary[matched.icon] || richIconLibrary.file;
+            var gradientColor = 'linear-gradient(135deg, ' + matched.colors[0] + '1A 0%, ' + matched.colors[1] + '1A 100%)';
+            var strokeColor = matched.colors[0];
 
             var cls = 'subquestion-card';
             if (level === 1) cls += ' child-card';
@@ -498,13 +590,61 @@
             var targetAttr = isExternal ? ' target="_blank"' : '';
 
             return '<a href="' + url + '" class="' + cls + '" data-question-id="' + q.id + '"' + targetAttr + '>' +
-                '<div class="subquestion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + iconPath + '</svg></div>' +
+                '<div class="subquestion-icon" style="background:' + gradientColor + ';"><svg viewBox="0 0 24 24" fill="none" stroke="' + strokeColor + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + iconPath + '</svg></div>' +
                 '<div class="subquestion-content">' +
                 '  <h3 class="subquestion-title">' + escapeHtml(q.title) + '<span class="subquestion-type-tag">' + tag + '</span></h3>' +
                 (descText ? '<p class="subquestion-desc">' + descText + '</p>' : '') +
                 '</div>' +
                 '<div class="subquestion-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>' +
                 '</a>';
+        }
+
+        // ---- 图标 Hover 效果 ----
+        function setupIconHoverEffects() {
+            // 子问题卡片图标 hover
+            var subCards = document.querySelectorAll('.subquestion-card');
+            subCards.forEach(function(card) {
+                var icon = card.querySelector('.subquestion-icon');
+                if (!icon) return;
+                var svg = icon.querySelector('svg');
+                if (!svg) return;
+                var originalBg = icon.style.background;
+                var currentStroke = svg.getAttribute('stroke');
+                // 将颜色增加 10% 的不透明度作为 hover 背景
+                var hoverBg = originalBg
+                    .replace(/1A/g, '29')
+                    .replace(/0\./g, function(m) {
+                        var n = Math.min(0.25, parseFloat(m) + 0.07);
+                        return n.toString();
+                    });
+                card.addEventListener('mouseenter', function() {
+                    icon.style.background = hoverBg;
+                });
+                card.addEventListener('mouseleave', function() {
+                    icon.style.background = originalBg;
+                });
+            });
+            // 问题类型卡片图标 hover
+            var typeCards = document.querySelectorAll('.type-card');
+            typeCards.forEach(function(card) {
+                var icon = card.querySelector('.type-card-icon');
+                if (!icon) return;
+                var svg = icon.querySelector('svg');
+                if (!svg) return;
+                var originalBg = icon.style.background;
+                var hoverBg = originalBg
+                    .replace(/1A/g, '29')
+                    .replace(/0\./g, function(m) {
+                        var n = Math.min(0.25, parseFloat(m) + 0.07);
+                        return n.toString();
+                    });
+                card.addEventListener('mouseenter', function() {
+                    icon.style.background = hoverBg;
+                });
+                card.addEventListener('mouseleave', function() {
+                    icon.style.background = originalBg;
+                });
+            });
         }
 
         // ---- 返回上级链接 ----
