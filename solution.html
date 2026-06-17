@@ -663,9 +663,6 @@
         </footer>
     </main>
 
-    <!-- 引入配置文件 -->
-    <script src="config.js"></script>
-
     <script>
         // 应用外观设置（从 localStorage 读取）
         (function() {
@@ -684,10 +681,10 @@
             questions: [],
             currentQuestion: null,
 
-            // 加载问题列表（轻量，不含 content）
+            // 加载问题列表（从静态 JSON，含 content）
             async load() {
                 try {
-                    const res = await fetch(window.API_BASE + '/api/questions');
+                    const res = await fetch(window.DATA_BASE + '/questions.json');
                     this.questions = await res.json() || [];
                 } catch (error) {
                     console.error('数据加载失败:', error);
@@ -695,18 +692,19 @@
                 }
             },
 
-            // 加载单条问题详情（含 content，用于文章页面）
+            // 加载单条问题详情（从已加载的静态列表中查找）
             async loadQuestionDetail(id) {
                 try {
-                    const res = await fetch(window.API_BASE + '/api/questions/' + id);
-                    if (res.ok) {
-                        this.currentQuestion = await res.json();
-                        return this.currentQuestion;
+                    // 确保列表已加载
+                    if (this.questions.length === 0) {
+                        await this.load();
                     }
+                    this.currentQuestion = this.questions.find(q => q.id === id) || null;
+                    return this.currentQuestion;
                 } catch (error) {
                     console.error('加载问题详情失败:', error);
+                    return null;
                 }
-                return null;
             },
 
             getQuestionById(id) {
@@ -780,73 +778,14 @@
             };
         }
 
-        // 预处理富文本内容，将大 base64 图片替换为懒加载占位符（不预先解码，避免阻塞）
+        // 预处理富文本内容（图片已是 URL，无需处理）
         function preprocessRichContent(html) {
-            if (!html) return html;
-            
-            // 匹配 <img> 标签中的 base64 图片
-            const base64ImgRegex = /<img([^>]+)src="(data:image\/[^;]+;base64,[^"]+)"([^>]*)>/gi;
-            
-            let imageIndex = 0;
-            const processedHtml = html.replace(base64ImgRegex, (match, before, src, after) => {
-                if (src.length > 10000) {
-                    imageIndex++;
-                    const placeholderId = `lazy-img-${imageIndex}`;
-                    // 使用默认宽高比 16:9（截图常用比例），避免预先解码图片
-                    return `<div class="img-lazy-placeholder" id="${placeholderId}" style="padding-top:56.25%" data-src="${src}"></div>`;
-                }
-                return match;
-            });
-            
-            return processedHtml;
+            return html;
         }
         
-        // 图片懒加载 + 错误处理（通过独立 API 获取图片）
+        // 图片加载（已废弃，图片现在直接使用 URL）
         function setupImageLoading(container, questionId) {
-            const placeholders = container.querySelectorAll('.img-lazy-placeholder');
-            
-            const lazyLoad = () => {
-                placeholders.forEach(placeholder => {
-                    if (placeholder.dataset.loaded === 'true') return;
-                    
-                    const rect = placeholder.getBoundingClientRect();
-                    const isInViewport = rect.top < window.innerHeight * 1.5 && rect.bottom > 0;
-                    
-                    if (isInViewport) {
-                        const imgKey = placeholder.dataset.imgKey;
-                        if (imgKey) {
-                            const img = document.createElement('img');
-                            img.src = `/api/questions/${questionId}/image/${imgKey}`;
-                            img.style.position = 'absolute';
-                            img.style.top = '0';
-                            img.style.left = '0';
-                            img.style.width = '100%';
-                            img.style.height = '100%';
-                            img.style.objectFit = 'contain';
-                            img.style.opacity = '0';
-                            img.style.transition = 'opacity 0.3s ease';
-                            
-                            img.onload = () => {
-                                img.style.opacity = '1';
-                            };
-                            
-                            img.onerror = () => {
-                                placeholder.innerHTML = '<div class="img-placeholder">&#128247; 图片加载失败<br><span style="font-size:11px;">请稍后刷新页面重试</span></div>';
-                            };
-                            
-                            placeholder.appendChild(img);
-                            placeholder.dataset.loaded = 'true';
-                        }
-                    }
-                });
-            };
-            
-            // 初始加载一次
-            setTimeout(lazyLoad, 50);
-            // 滚动时加载
-            window.addEventListener('scroll', lazyLoad, { passive: true });
-            // 窗口大小改变时加载
-            window.addEventListener('resize', lazyLoad);
+            // no-op: 图片已是 GitHub Pages URL，浏览器自动加载
         }
         
         function replaceBrokenImage(img) {
@@ -1008,8 +947,8 @@
         // ========== 初始化 ==========
         var serviceDeskUrl = '';
 
-        // 页面加载时获取服务台链接
-        fetch(window.API_BASE + '/api/service-desk')
+        // 页面加载时从静态 JSON 获取服务台链接
+        fetch(window.DATA_BASE + '/service-desk.json')
             .then(function(res) { return res.json(); })
             .then(function(data) { serviceDeskUrl = data.url || ''; })
             .catch(function() { /* 静默失败 */ });

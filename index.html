@@ -1182,50 +1182,36 @@
             questions: [],
             hotQuestions: [],
             
-            async load(retryCount = 0) {
-                const MAX_RETRIES = 3;
-                const RETRY_DELAY = 3000; // 3秒重试间隔（适应冷启动）
-                const API = window.API_BASE || '';  // 使用配置文件中的API地址
-                
+            async load() {
+                const DATA = window.DATA_BASE || './data';  // 静态数据路径
+
                 try {
                     const [typesRes, questionsRes, hotRes] = await Promise.all([
-                        fetch(API + '/api/types'),
-                        fetch(API + '/api/questions'),
-                        fetch(API + '/api/hot')
+                        fetch(DATA + '/types.json'),
+                        fetch(DATA + '/questions.json'),
+                        fetch(DATA + '/hot.json')
                     ]);
-                    
+
                     // 检查是否有请求失败
                     const allOk = typesRes.ok && questionsRes.ok && hotRes.ok;
                     if (!allOk) {
-                        throw new Error('部分API请求失败');
+                        throw new Error('部分静态数据文件加载失败');
                     }
-                    
+
                     this.questionTypes = await typesRes.json() || [];
                     this.questions = await questionsRes.json() || [];
                     this.hotQuestions = await hotRes.json() || [];
-                    
-                    console.log('[DataStore] 数据加载成功', {
+
+                    console.log('[DataStore] 静态数据加载成功', {
                         types: this.questionTypes.length,
                         questions: this.questions.length,
                         hot: this.hotQuestions.length
                     });
-                    
+
                 } catch (error) {
-                    console.error(`[DataStore] 数据加载失败 (第${retryCount + 1}次尝试):`, error.message);
-                    
-                    // 重试机制（冷启动场景下服务器可能需要时间唤醒）
-                    if (retryCount < MAX_RETRIES) {
-                        const indicator = document.getElementById('pageLoading');
-                        if (indicator) {
-                            indicator.querySelector('span').textContent = 
-                                `正在唤醒服务器 (${retryCount + 1}/${MAX_RETRIES})`;
-                        }
-                        
-                        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-                        return this.load(retryCount + 1);
-                    }
-                    
-                    // 最终失败，使用空数据
+                    console.error('[DataStore] 数据加载失败:', error.message);
+
+                    // 静态文件加载失败，使用空数据
                     this.questionTypes = [];
                     this.questions = [];
                     this.hotQuestions = [];

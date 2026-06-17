@@ -14,6 +14,7 @@ const hotRouter = require('./routes/hot');
 const serviceDeskRouter = require('./routes/service-desk');
 const authRouter = require('./routes/auth');
 const uploadRouter = require('./routes/upload');
+const publishRouter = require('./routes/publish');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -56,6 +57,7 @@ app.use('/api/questions', questionsRouter);
 app.use('/api/hot', hotRouter);
 app.use('/api/service-desk', serviceDeskRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/publish', publishRouter);
 
 // 静态文件服务（上传的图片）
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));

@@ -1,0 +1,11 @@
+{
+  "publishedAt": null,
+  "publishedBy": null,
+  "version": 0,
+  "stats": {
+    "types": 0,
+    "questions": 0,
+    "hotQuestions": 0
+  },
+  "note": "本地测试数据，实际发布由后端 /api/publish 接口生成"
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "hq_1",
+    "title": "如何查询订单状态？",
+    "linkId": "q_8",
+    "order": 1,
+    "status": true
+  },
+  {
+    "id": "hq_2",
+    "title": "退换货政策是什么？",
+    "linkId": "q_6",
+    "order": 2,
+    "status": true
+  }
+]

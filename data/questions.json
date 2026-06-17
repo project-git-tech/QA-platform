@@ -1,0 +1,112 @@
+[
+  {
+    "id": "q_1",
+    "typeId": "type_1",
+    "parentId": null,
+    "title": "衣柜产品",
+    "attribute": "directory",
+    "contentType": null,
+    "content": null,
+    "hyperlink": null,
+    "order": 1
+  },
+  {
+    "id": "q_2",
+    "typeId": "type_1",
+    "parentId": "q_1",
+    "title": "衣柜材质选择",
+    "attribute": "directory",
+    "contentType": null,
+    "content": null,
+    "hyperlink": null,
+    "order": 1
+  },
+  {
+    "id": "q_3",
+    "typeId": "type_1",
+    "parentId": "q_2",
+    "title": "实木衣柜优缺点",
+    "attribute": "article",
+    "contentType": "richtext",
+    "content": "<p>实木衣柜的优点：环保、质感好、耐用；缺点：价格较高、需要保养。</p>",
+    "hyperlink": null,
+    "order": 1
+  },
+  {
+    "id": "q_4",
+    "typeId": "type_1",
+    "parentId": "q_2",
+    "title": "板材衣柜优缺点",
+    "attribute": "article",
+    "contentType": "richtext",
+    "content": "<p>板材衣柜的优点：价格实惠、款式多样；缺点：环保性能参差不齐。</p>",
+    "hyperlink": null,
+    "order": 2
+  },
+  {
+    "id": "q_5",
+    "typeId": "type_1",
+    "parentId": "q_1",
+    "title": "衣柜尺寸规格",
+    "attribute": "article",
+    "contentType": "richtext",
+    "content": "<p>常见衣柜尺寸：宽度1.2m-2.4m，高度2.0m-2.4m，深度0.6m-0.8m。</p>",
+    "hyperlink": null,
+    "order": 2
+  },
+  {
+    "id": "q_6",
+    "typeId": "type_2",
+    "parentId": null,
+    "title": "退换货政策",
+    "attribute": "article",
+    "contentType": "richtext",
+    "content": "<p>支持7天无理由退换货，需保持商品完好。</p>",
+    "hyperlink": null,
+    "order": 1
+  },
+  {
+    "id": "q_7",
+    "typeId": "type_2",
+    "parentId": null,
+    "title": "保修服务",
+    "attribute": "article",
+    "contentType": "richtext",
+    "content": "<p>产品质保期为3年，提供免费维修服务。</p>",
+    "hyperlink": null,
+    "order": 2
+  },
+  {
+    "id": "q_8",
+    "typeId": "type_3",
+    "parentId": null,
+    "title": "如何查询订单",
+    "attribute": "article",
+    "contentType": "richtext",
+    "content": "<p>登录账号后在\"我的订单\"中查看订单状态。</p>",
+    "hyperlink": null,
+    "order": 1
+  },
+  {
+    "id": "q_9",
+    "typeId": "type_3",
+    "parentId": null,
+    "title": "如何取消订单",
+    "attribute": "article",
+    "contentType": "richtext",
+    "content": "<p>未发货订单可直接取消，已发货需联系客服。</p>",
+    "hyperlink": null,
+    "order": 2
+  },
+  {
+    "id": "q_10",
+    "typeId": "type_4",
+    "parentId": null,
+    "title": "配送时间",
+    "attribute": "article",
+    "contentType": "richtext",
+    "content": "<p>一般3-5个工作日送达，偏远地区可能延迟。</p>",
+    "hyperlink": null,
+    "order": 1
+  }
+]

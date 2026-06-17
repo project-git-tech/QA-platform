@@ -356,8 +356,8 @@
         }
         listEl.innerHTML = skeletonHTML;
 
-        // ---- 第三步：异步加载数据并渲染 ----
-        var API = window.API_BASE || '';  // 使用配置文件中的API地址
+        // ---- 第三步：异步加载静态数据并渲染 ----
+        var DATA = window.DATA_BASE || './data';  // 静态数据路径
         var typesData = [];
         var questionsData = [];
         var dataReady = false;  // 数据是否已加载完成
@@ -365,12 +365,12 @@
         loadDataAndRender();
 
         function loadDataAndRender() {
-            console.log('[load] 开始加载数据...');
+            console.log('[load] 开始加载静态数据...');
             Promise.all([
-                fetch(API + '/api/types')
+                fetch(DATA + '/types.json')
                     .then(function(r) { return r.json(); })
                     .catch(function(e) { console.error('[types] 加载失败:', e.message); return []; }),
-                fetch(API + '/api/questions')
+                fetch(DATA + '/questions.json')
                     .then(function(r) { return r.json(); })
                     .catch(function(e) { console.error('[questions] 加载失败:', e.message); return []; })
             ]).then(function(results) {
@@ -386,7 +386,7 @@
             }).catch(function(err) {
                 console.error('[ERR] 加载异常:', err);
                 dataReady = true;
-                renderError(err.message || '网络连接失败');
+                renderError(err.message || '数据加载失败');
             });
         }
 

@@ -307,6 +307,10 @@
                     <span class="nav-icon">🎨</span>
                     <span>外观设置</span>
                 </div>
+                <div class="nav-item" data-section="publish">
+                    <span class="nav-icon">🚀</span>
+                    <span>发布管理</span>
+                </div>
             </div>
         </nav>
     </aside>
@@ -427,6 +431,27 @@
                             <button class="btn btn-secondary" onclick="resetAppearanceSettings()"><i class="ri-refresh-line"></i><span>恢复默认</span></button>
                         </div>
                         <p id="appearanceStatus" style="margin-top:12px;font-size:13px;color:var(--color-success);display:none;"><i class="ri-check-line"></i> 外观设置已保存</p>
+                    </div>
+                </div>
+            </section>
+            <section id="section-publish" class="page-section">
+                <div class="card">
+                    <div class="card-header"><h2>发布到线上</h2></div>
+                    <div class="card-body">
+                        <p style="color:var(--color-text-tertiary);margin-bottom:16px;font-size:14px;">
+                            点击下方按钮将当前数据库内容发布到线上前端仓库。发布后 GitHub Pages 将在 1-2 分钟内自动更新。
+                        </p>
+                        <div id="publishConfigStatus" style="margin-bottom:16px;padding:12px;border-radius:8px;font-size:13px;display:none;"></div>
+                        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                            <button class="btn btn-success" onclick="publishToLive()" id="publishBtn">
+                                <i class="ri-rocket-line"></i><span>立即发布</span>
+                            </button>
+                            <button class="btn btn-secondary" onclick="checkPublishStatus()">
+                                <i class="ri-refresh-line"></i><span>检查配置</span>
+                            </button>
+                            <span id="publishStatus" style="font-size:13px;color:var(--color-text-tertiary);"></span>
+                        </div>
+                        <div id="publishResult" style="margin-top:16px;display:none;"></div>
                     </div>
                 </div>
             </section>
@@ -1650,7 +1675,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 
                                 const result = await response.json();
                                 if (result.success) {
-                                    // 使用 base64 dataUrl 存储图片，确保持久化（Render 文件系统不会丢失）
+                                    // 使用返回的图片 URL（GitHub Pages URL 或 base64 降级）
                                     const imgSrc = result.dataUrl || result.url;
                                     document.execCommand('insertImage', false, imgSrc);
                                     setTimeout(function() {
@@ -1710,6 +1735,99 @@ async function saveServiceDeskUrl() {
     } catch (e) {
         console.error('保存服务台链接失败:', e);
         toast('保存失败，请重试');
+    }
+}
+
+// ========== 发布管理 ==========
+async function checkPublishStatus() {
+    const configBox = document.getElementById('publishConfigStatus');
+    const status = document.getElementById('publishStatus');
+    status.textContent = '正在检查配置...';
+    configBox.style.display = 'none';
+    try {
+        const res = await fetch(API + '/api/publish/status');
+        const data = await res.json();
+        status.textContent = '';
+        configBox.style.display = 'block';
+        if (data.configured) {
+            configBox.style.background = '#ECFDF5';
+            configBox.style.border = '1px solid #10B981';
+            configBox.style.color = '#065F46';
+            configBox.innerHTML = '<i class="ri-check-line"></i> 发布功能已配置 | 仓库: ' + data.repo + ' | 分支: ' + data.branch;
+        } else {
+            configBox.style.background = '#FEF3C7';
+            configBox.style.border = '1px solid #F59E0B';
+            configBox.style.color = '#92400E';
+            configBox.innerHTML = '<i class="ri-error-warning-line"></i> ' + data.message;
+        }
+    } catch (e) {
+        status.textContent = '';
+        configBox.style.display = 'block';
+        configBox.style.background = '#FEF2F2';
+        configBox.style.border = '1px solid #EF4444';
+        configBox.style.color = '#991B1B';
+        configBox.innerHTML = '<i class="ri-error-warning-line"></i> 检查失败: ' + e.message;
+    }
+}
+
+async function publishToLive() {
+    const btn = document.getElementById('publishBtn');
+    const status = document.getElementById('publishStatus');
+    const result = document.getElementById('publishResult');
+
+    if (!confirm('确认发布当前数据到线上？\n\n发布后约 1-2 分钟生效（GitHub Pages 部署时间）。\n同一分钟内只能发布一次。')) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i><span>发布中...</span>';
+    status.textContent = '正在序列化数据并提交到 GitHub...';
+    result.style.display = 'none';
+
+    try {
+        const res = await fetch(API + '/api/publish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            status.textContent = '';
+            result.style.display = 'block';
+            const fileList = data.files.map(function(f) {
+                return '<li>' + f.file + '（' + f.count + ' 条）</li>';
+            }).join('');
+            result.innerHTML =
+                '<div style="padding:16px;background:#ECFDF5;border:1px solid #10B981;border-radius:8px;">' +
+                    '<p style="color:#10B981;font-weight:600;margin-bottom:8px;">' +
+                        '<i class="ri-check-line"></i> 发布成功' +
+                    '</p>' +
+                    '<p style="font-size:13px;color:var(--color-text-secondary);">发布时间：' + new Date(data.publishedAt).toLocaleString('zh-CN') + '</p>' +
+                    '<p style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">目标仓库：' + data.repo + ' (' + data.branch + ')</p>' +
+                    '<p style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">发布文件：</p>' +
+                    '<ul style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;padding-left:20px;">' + fileList + '</ul>' +
+                    '<p style="font-size:13px;color:var(--color-warning);margin-top:8px;">' +
+                        '<i class="ri-time-line"></i> GitHub Pages 将在 1-2 分钟内更新' +
+                    '</p>' +
+                '</div>';
+            toast('发布成功');
+        } else if (res.status === 429) {
+            throw new Error(data.error || '发布过于频繁，请稍后重试');
+        } else {
+            throw new Error(data.error || '发布失败');
+        }
+    } catch (error) {
+        status.textContent = '';
+        result.style.display = 'block';
+        result.innerHTML =
+            '<div style="padding:16px;background:#FEF2F2;border:1px solid #EF4444;border-radius:8px;">' +
+                '<p style="color:#EF4444;font-weight:600;">' +
+                    '<i class="ri-error-warning-line"></i> 发布失败' +
+                '</p>' +
+                '<p style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">' + error.message + '</p>' +
+            '</div>';
+        toast('发布失败: ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ri-rocket-line"></i><span>立即发布</span>';
     }
 }
 
