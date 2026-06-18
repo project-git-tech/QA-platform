@@ -19,7 +19,7 @@ module.exports = {
   // OAuth 回调地址（必须与飞书平台配置一致）
   // 开发环境：http://localhost:3000/api/auth/callback
   // 生产环境：https://qa-platform-1-zat2.onrender.com/api/auth/callback
-  redirectUri: process.env.FEISHU_REDIRECT_URI || 'https://qa-platform-1-zat2.onrender.com/api/auth/callback',
+  redirectUri: process.env.FEISHU_REDIRECT_URI || 'https://qa-platform-dpd6byolbe9l.edgeone.cool/api/auth/callback',
   
   // 飞书 API 基础地址
   apiBase: 'https://open.feishu.cn/open-apis',
