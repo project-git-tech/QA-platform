@@ -1,30 +1,26 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../_db');
+import { Sequelize } from '../_db.js';
 
-const HotQuestion = sequelize.define('HotQuestion', {
-  id: {
-    type: DataTypes.STRING(50),
-    primaryKey: true
-  },
-  title: {
-    type: DataTypes.STRING(200),
-    allowNull: false
-  },
-  linkId: {
-    type: DataTypes.STRING(50),
-    allowNull: false
-  },
-  order: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0
-  },
-  status: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true
-  }
-}, {
-  timestamps: true,
-  tableName: 'hot_questions'
-});
+export default sequelize => {
+  const HotQuestion = sequelize.define('HotQuestion', {
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    questionId: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      field: 'question_id'
+    },
+    order: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    }
+  }, {
+    tableName: 'hot_questions',
+    timestamps: true,
+    underscored: true
+  });
 
-module.exports = HotQuestion;
+  return HotQuestion;
+};

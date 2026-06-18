@@ -1,66 +1,65 @@
-const express = require('express');
-const router = express.Router();
-const { HotQuestion } = require('../models');
+import { Router } from 'express';
+import { HotQuestion, Question } from '../models/index.js';
 
+const router = Router();
+
+// 获取热门问题列表
 router.get('/', async (req, res) => {
   try {
     const hotQuestions = await HotQuestion.findAll({
-      where: { status: true },
-      order: [['order', 'ASC']]
+      order: [['order', 'ASC'], ['id', 'ASC']],
+      include: [{
+        model: Question,
+        as: 'question',
+        attributes: ['id', 'title']
+      }]
     });
     res.json(hotQuestions);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Hot] 获取热门问题失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
+// 添加热门问题
 router.post('/', async (req, res) => {
   try {
-    const { title, linkId, order, status } = req.body;
-    const hotQuestion = await HotQuestion.create({
-      id: 'hq_' + Date.now(),
-      title,
-      linkId,
-      order: order || 0,
-      status: status !== undefined ? status : true
-    });
-    res.json(hotQuestion);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const { questionId, order } = req.body;
+    const hot = await HotQuestion.create({ questionId, order: order || 0 });
+    res.json(hot);
+  } catch (err) {
+    console.error('[Hot] 添加热门问题失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-router.put('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, linkId, order, status } = req.body;
-    const hotQuestion = await HotQuestion.findByPk(id);
-    if (!hotQuestion) {
-      return res.status(404).json({ error: '热门问题不存在' });
-    }
-    hotQuestion.title = title;
-    hotQuestion.linkId = linkId;
-    hotQuestion.order = order;
-    hotQuestion.status = status;
-    await hotQuestion.save();
-    res.json(hotQuestion);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
+// 删除热门问题
 router.delete('/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const hotQuestion = await HotQuestion.findByPk(id);
-    if (!hotQuestion) {
+    const hot = await HotQuestion.findByPk(req.params.id);
+    if (!hot) {
       return res.status(404).json({ error: '热门问题不存在' });
     }
-    await hotQuestion.destroy();
+    await hot.destroy();
     res.json({ message: '删除成功' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Hot] 删除热门问题失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-module.exports = router;
+// 批量更新排序
+router.put('/batch/reorder', async (req, res) => {
+  try {
+    const { items } = req.body;
+    for (const item of items) {
+      await HotQuestion.update({ order: item.order }, { where: { id: item.id } });
+    }
+    res.json({ message: '排序更新成功' });
+  } catch (err) {
+    console.error('[Hot] 批量排序失败:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export default router;

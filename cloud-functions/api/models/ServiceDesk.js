@@ -1,20 +1,33 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../_db');
+import { Sequelize } from '../_db.js';
 
-const ServiceDesk = sequelize.define('ServiceDesk', {
-  id: {
-    type: DataTypes.STRING(50),
-    primaryKey: true,
-    defaultValue: 'service_desk_config'
-  },
-  url: {
-    type: DataTypes.STRING(500),
-    allowNull: false,
-    defaultValue: ''
-  }
-}, {
-  timestamps: true,
-  tableName: 'service_desk'
-});
+export default sequelize => {
+  const ServiceDesk = sequelize.define('ServiceDesk', {
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    name: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    url: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    icon: {
+      type: Sequelize.STRING,
+      defaultValue: ''
+    },
+    order: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    }
+  }, {
+    tableName: 'service_desks',
+    timestamps: true,
+    underscored: true
+  });
 
-module.exports = ServiceDesk;
+  return ServiceDesk;
+};

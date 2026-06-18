@@ -1,125 +1,108 @@
-const express = require('express');
-const router = express.Router();
-const { Question } = require('../models');
+import { Router } from 'express';
+import { Question, QuestionType } from '../models/index.js';
 
-// 列表接口：只返回轻量字段，不含 content
+const router = Router();
+
+// 获取问题列表
 router.get('/', async (req, res) => {
   try {
+    const { typeId } = req.query;
+    const where = {};
+    if (typeId) where.typeId = typeId;
+
     const questions = await Question.findAll({
-      attributes: ['id', 'typeId', 'parentId', 'title', 'attribute', 'contentType', 'hyperlink', 'order', 'createdAt', 'updatedAt'],
-      order: [['order', 'ASC']]
+      where,
+      order: [['order', 'ASC'], ['id', 'ASC']],
+      include: [{
+        model: QuestionType,
+        as: 'type',
+        attributes: ['id', 'name']
+      }]
     });
     res.json(questions);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Questions] 获取问题列表失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-// 按类型查询列表
-router.get('/type/:typeId', async (req, res) => {
-  try {
-    const { typeId } = req.params;
-    const questions = await Question.findAll({
-      where: { typeId },
-      attributes: ['id', 'typeId', 'parentId', 'title', 'attribute', 'contentType', 'hyperlink', 'order', 'createdAt', 'updatedAt'],
-      order: [['order', 'ASC']]
-    });
-    res.json(questions);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// 单条详情接口
+// 获取单个问题详情
 router.get('/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const question = await Question.findByPk(id);
+    const question = await Question.findByPk(req.params.id, {
+      include: [{
+        model: QuestionType,
+        as: 'type',
+        attributes: ['id', 'name']
+      }]
+    });
     if (!question) {
       return res.status(404).json({ error: '问题不存在' });
     }
     res.json(question);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Questions] 获取问题详情失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-// 获取分离的图片数据（已废弃，保留兼容旧数据）
-router.get('/:id/image/:imgKey', async (req, res) => {
-  try {
-    const { Image } = require('../models');
-    const { imgKey } = req.params;
-    const image = await Image.findByPk(imgKey);
-    if (!image) {
-      return res.status(404).json({ error: '图片不存在' });
-    }
-    const src = image.imageData;
-    const mimeType = image.mimeType || 'image/png';
-    const base64Data = src.split(',')[1];
-    const buffer = Buffer.from(base64Data, 'base64');
-    res.set('Content-Type', mimeType);
-    res.set('Cache-Control', 'public, max-age=86400');
-    res.send(buffer);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
+// 创建问题
 router.post('/', async (req, res) => {
   try {
-    const { typeId, parentId, title, attribute, contentType, content, hyperlink, order } = req.body;
+    const { title, content, typeId, order, images } = req.body;
     const question = await Question.create({
-      id: 'q_' + Date.now(),
-      typeId,
-      parentId: parentId || null,
-      title,
-      attribute,
-      contentType,
-      content,
-      hyperlink,
-      order: order || 0
+      title, content, typeId, order: order || 0, images: images || []
     });
     res.json(question);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Questions] 创建问题失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
+// 更新问题
 router.put('/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const { typeId, parentId, title, attribute, contentType, content, hyperlink, order } = req.body;
-    const question = await Question.findByPk(id);
+    const question = await Question.findByPk(req.params.id);
     if (!question) {
       return res.status(404).json({ error: '问题不存在' });
     }
-    question.typeId = typeId;
-    question.parentId = parentId || null;
-    question.title = title;
-    question.attribute = attribute;
-    question.contentType = contentType;
-    question.content = content;
-    question.hyperlink = hyperlink;
-    question.order = order;
-    await question.save();
+    const { title, content, typeId, order, images } = req.body;
+    await question.update({ title, content, typeId, order, images });
     res.json(question);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Questions] 更新问题失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
+// 删除问题
 router.delete('/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const question = await Question.findByPk(id);
+    const question = await Question.findByPk(req.params.id);
     if (!question) {
       return res.status(404).json({ error: '问题不存在' });
     }
     await question.destroy();
     res.json({ message: '删除成功' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Questions] 删除问题失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-module.exports = router;
+// 批量更新排序
+router.put('/batch/reorder', async (req, res) => {
+  try {
+    const { items } = req.body;
+    for (const item of items) {
+      await Question.update({ order: item.order }, { where: { id: item.id } });
+    }
+    res.json({ message: '排序更新成功' });
+  } catch (err) {
+    console.error('[Questions] 批量排序失败:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export default router;

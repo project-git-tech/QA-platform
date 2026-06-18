@@ -1,118 +1,93 @@
-const express = require('express');
-const router = express.Router();
-const multer = require('multer');
-const Jimp = require('jimp');
-const axios = require('axios');
-const https = require('https');
+import { Router } from 'express';
+import axios from 'axios';
+import https from 'https';
+import multer from 'multer';
 
-// GitHub API 配置
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const GITHUB_OWNER = process.env.GITHUB_OWNER;
-const GITHUB_REPO = process.env.GITHUB_REPO;
+const router = Router();
+const upload = multer({ storage: multer.memoryStorage() });
+
+const GITHUB_OWNER = process.env.GITHUB_OWNER || 'project-git-tech';
+const GITHUB_REPO = process.env.GITHUB_REPO || 'qaui-frontend';
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-// GitHub Pages 基础 URL
-const PAGES_BASE = `https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}`;
-
-// 创建忽略 SSL 验证的 axios 实例
-const githubAxios = axios.create({
-    httpsAgent: new https.Agent({ rejectUnauthorized: false })
+const githubApi = axios.create({
+  baseURL: `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`,
+  headers: {
+    'Authorization': `token ${GITHUB_TOKEN}`,
+    'Accept': 'application/vnd.github.v3+json'
+  },
+  httpsAgent: new https.Agent({ rejectUnauthorized: false })
 });
 
-// 内存存储（不落盘）
-const storage = multer.memoryStorage();
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 },
-    fileFilter: function (req, file, cb) {
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (allowedTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error('只支持 JPG、PNG、GIF、WebP 格式的图片'));
-        }
+// 上传图片到 GitHub 仓库
+router.post('/', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: '请选择图片文件' });
     }
-});
 
-/**
- * 通过 GitHub API 上传图片到 images/ 目录
- */
-async function uploadToGitHub(filePath, content, message) {
-    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`;
-    const headers = {
-        'Authorization': `Bearer ${GITHUB_TOKEN}`,
-        'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28'
-    };
+    if (!GITHUB_TOKEN) {
+      return res.status(500).json({ error: 'GITHUB_TOKEN 未配置' });
+    }
 
-    const body = {
-        message: message,
-        content: content,
-        branch: GITHUB_BRANCH
-    };
+    const { buffer, originalname, mimetype } = req.file;
 
-    const putRes = await githubAxios.put(url, body, {
-        headers: { ...headers, 'Content-Type': 'application/json' }
+    // 生成文件名：时间戳 + 原始文件名
+    const timestamp = Date.now();
+    const ext = originalname.split('.').pop();
+    const filename = `${timestamp}.${ext}`;
+    const githubPath = `images/${filename}`;
+
+    // 上传到 GitHub
+    const response = await githubApi.put(`/contents/${githubPath}`, {
+      message: `upload image: ${filename}`,
+      branch: GITHUB_BRANCH,
+      content: buffer.toString('base64')
     });
 
-    return putRes.data;
-}
+    // 返回图片 URL（通过 GitHub Pages 访问）
+    const imageUrl = `https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/${githubPath}`;
 
-router.post('/image', upload.single('file'), async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ error: '请选择要上传的图片' });
-        }
-
-        // 压缩图片：最大宽度 1200px，质量 70%，转为 WebP 格式
-        let compressedBuffer;
-        try {
-            const image = await Jimp.read(req.file.buffer);
-            const maxWidth = 1200;
-            if (image.bitmap.width > maxWidth) {
-                image.resize(maxWidth, Jimp.AUTO);
-            }
-            image.quality(70);
-            compressedBuffer = await image.getBufferAsync(Jimp.MIME_WEBP);
-        } catch (e) {
-            compressedBuffer = req.file.buffer;
-        }
-
-        // 生成文件名
-        const filename = `img_${Date.now()}.webp`;
-        const githubPath = `images/${filename}`;
-        const base64Content = compressedBuffer.toString('base64');
-
-        // 检查 GitHub 配置
-        if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
-            const dataUrl = `data:image/webp;base64,${base64Content}`;
-            return res.json({
-                success: true,
-                url: dataUrl,
-                dataUrl: dataUrl,
-                warning: 'GitHub 未配置，使用 base64 内联'
-            });
-        }
-
-        // 上传到 GitHub
-        await uploadToGitHub(
-            githubPath,
-            base64Content,
-            `chore(images): upload ${filename}`
-        );
-
-        const imageUrl = `${PAGES_BASE}/images/${filename}`;
-
-        res.json({
-            success: true,
-            url: imageUrl,
-            dataUrl: imageUrl,
-            sizeKB: (compressedBuffer.length / 1024).toFixed(1)
-        });
-    } catch (error) {
-        console.error('图片上传失败:', error.message);
-        res.status(500).json({ error: error.message });
-    }
+    res.json({
+      url: imageUrl,
+      filename: filename,
+      path: githubPath,
+      sha: response.data.content.sha
+    });
+  } catch (err) {
+    console.error('[Upload] 上传图片失败:', err.response?.data || err.message);
+    res.status(500).json({ error: '上传图片失败: ' + (err.response?.data?.message || err.message) });
+  }
 });
 
-module.exports = router;
+// 删除 GitHub 仓库中的图片
+router.delete('/:filename', async (req, res) => {
+  try {
+    if (!GITHUB_TOKEN) {
+      return res.status(500).json({ error: 'GITHUB_TOKEN 未配置' });
+    }
+
+    const { filename } = req.params;
+    const githubPath = `images/${filename}`;
+
+    // 先获取文件的 SHA
+    const { data: fileData } = await githubApi.get(`/contents/${githubPath}?ref=${GITHUB_BRANCH}`);
+
+    // 删除文件
+    await githubApi.delete(`/contents/${githubPath}`, {
+      data: {
+        message: `delete image: ${filename}`,
+        branch: GITHUB_BRANCH,
+        sha: fileData.sha
+      }
+    });
+
+    res.json({ message: '图片删除成功' });
+  } catch (err) {
+    console.error('[Upload] 删除图片失败:', err.response?.data || err.message);
+    res.status(500).json({ error: '删除图片失败: ' + (err.response?.data?.message || err.message) });
+  }
+});
+
+export default router;

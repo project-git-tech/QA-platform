@@ -1,67 +1,83 @@
-const express = require('express');
-const router = express.Router();
-const { QuestionType } = require('../models');
+import { Router } from 'express';
+import { QuestionType, Question } from '../models/index.js';
 
+const router = Router();
+
+// 获取所有问题类型（含问题列表）
 router.get('/', async (req, res) => {
   try {
     const types = await QuestionType.findAll({
-      order: [['order', 'ASC']]
+      order: [['order', 'ASC'], ['id', 'ASC']],
+      include: [{
+        model: Question,
+        as: 'questions',
+        attributes: ['id', 'title', 'order']
+      }]
     });
     res.json(types);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Types] 获取类型列表失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
+// 创建问题类型
 router.post('/', async (req, res) => {
   try {
-    const { name, icon, description, order, status } = req.body;
-    const type = await QuestionType.create({
-      id: 'type_' + Date.now(),
-      name,
-      icon: icon || 'ri-file-text-line',
-      description,
-      order: order || 0,
-      status: status !== undefined ? status : true
-    });
+    const { name, icon, order } = req.body;
+    const type = await QuestionType.create({ name, icon, order: order || 0 });
     res.json(type);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Types] 创建类型失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
+// 更新问题类型
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, icon, description, order, status } = req.body;
+    const { name, icon, order } = req.body;
     const type = await QuestionType.findByPk(id);
     if (!type) {
-      return res.status(404).json({ error: '问题类型不存在' });
+      return res.status(404).json({ error: '类型不存在' });
     }
-    type.name = name;
-    type.icon = icon;
-    type.description = description;
-    type.order = order;
-    type.status = status;
-    await type.save();
+    await type.update({ name, icon, order });
     res.json(type);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Types] 更新类型失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
+// 删除问题类型
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const type = await QuestionType.findByPk(id);
     if (!type) {
-      return res.status(404).json({ error: '问题类型不存在' });
+      return res.status(404).json({ error: '类型不存在' });
     }
     await type.destroy();
     res.json({ message: '删除成功' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('[Types] 删除类型失败:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-module.exports = router;
+// 批量更新排序
+router.put('/batch/reorder', async (req, res) => {
+  try {
+    const { items } = req.body;
+    for (const item of items) {
+      await QuestionType.update({ order: item.order }, { where: { id: item.id } });
+    }
+    res.json({ message: '排序更新成功' });
+  } catch (err) {
+    console.error('[Types] 批量排序失败:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export default router;
