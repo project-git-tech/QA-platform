@@ -5,18 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>欧派家居 - 后台配置管理系统</title>
     
-    <!-- 性能优化：提前建立与Render API的连接 -->
-    <link rel="preconnect" href="https://qa-platform-1-zat2.onrender.com">
-    <link rel="dns-prefetch" href="https://qa-platform-1-zat2.onrender.com">
-    
-    <!-- 引入Google Fonts: Inter -->
+    <!-- 引入配置文件（放在最前面） -->
+    <script src="config.js"></script>
+
+    <!-- 预加载静态数据文件（本地开发时使用） -->
+    <link rel="preload" href="./data/types.json" as="fetch" crossorigin>
+    <link rel="preload" href="./data/questions.json" as="fetch" crossorigin>
+    <link rel="preload" href="./data/hot.json" as="fetch" crossorigin>
+
+    <!-- 引入Google Fonts: Inter（异步加载） -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- 前后端分离配置 -->
-    <script src="config.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+
+    <!-- RemixIcon（异步加载） -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" media="print" onload="this.media='all'">
 
     <style>
         :root{
@@ -272,7 +275,15 @@
     </style>
 </head>
 <body>
-<div class="admin-layout">
+<!-- 权限验证遮罩层：未登录或权限不足时显示 -->
+<div id="auth-guard" style="position:fixed;inset:0;background:#F8FAFC;display:flex;align-items:center;justify-content:center;z-index:9999;">
+    <div style="text-align:center;padding:40px;background:white;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.08);max-width:400px;">
+        <div style="font-size:48px;margin-bottom:16px;">⏳</div>
+        <h2 style="font-size:20px;color:#1E293B;margin:0 0 8px 0;">正在验证权限...</h2>
+        <p style="font-size:14px;color:#64748B;margin:0;">请稍候</p>
+    </div>
+</div>
+<div class="admin-layout" id="admin-content" style="display:none;">
     <aside class="sidebar">
         <div class="sidebar-header">
             <a href="index.html" class="sidebar-logo">
@@ -664,10 +675,44 @@ const DS = {
     hotQuestions: [],
     questionTypes: [],
     questions: [],
+    loaded: false,
+    loadPromise: null,
     async init() {
         await this.load();
     },
     async load() {
+        if (this.loadPromise) return this.loadPromise;
+        
+        this.loadPromise = this._doLoad();
+        return this.loadPromise;
+    },
+    async _doLoad() {
+        const DATA = window.DATA_BASE || './data';
+        
+        try {
+            const [typesRes, questionsRes, hotRes] = await Promise.all([
+                fetch(DATA + '/types.json'),
+                fetch(DATA + '/questions.json'),
+                fetch(DATA + '/hot.json')
+            ]);
+
+            if (typesRes.ok && questionsRes.ok && hotRes.ok) {
+                this.questionTypes = await typesRes.json() || [];
+                this.questions = await questionsRes.json() || [];
+                this.hotQuestions = await hotRes.json() || [];
+                this.loaded = true;
+                console.log('[Admin DS] 静态数据加载成功', {
+                    types: this.questionTypes.length,
+                    questions: this.questions.length,
+                    hot: this.hotQuestions.length
+                });
+                this.migrateData();
+                return;
+            }
+        } catch (error) {
+            console.warn('[Admin DS] 静态数据加载失败，尝试API:', error.message);
+        }
+
         try {
             const [typesRes, questionsRes, hotRes] = await Promise.all([
                 fetch(API + '/api/types'),
@@ -677,6 +722,7 @@ const DS = {
             this.questionTypes = await typesRes.json() || [];
             this.questions = await questionsRes.json() || [];
             this.hotQuestions = await hotRes.json() || [];
+            this.loaded = true;
             this.migrateData();
         } catch (error) {
             console.error('Failed to load data from API:', error);
@@ -1921,6 +1967,105 @@ function resetAppearanceSettings() {
     Object.keys(APPEARANCE_DEFAULTS).forEach(function(k) { applyAppearanceColor(k, APPEARANCE_DEFAULTS[k]); });
     toast('已恢复默认外观设置');
 }
+</script>
+
+<!-- 飞书登录权限验证脚本 -->
+<script src="auth.js"></script>
+<script>
+/**
+ * 后台管理页面权限验证
+ * 
+ * 流程：
+ * 1. 检查登录状态（带5秒超时降级）
+ * 2. 未登录 → 显示登录提示
+ * 3. 已登录但非管理员 → 显示权限不足提示
+ * 4. 已登录且是管理员 → 显示后台内容
+ */
+(function() {
+    var API_BASE = (window.API_BASE !== undefined ? window.API_BASE : '') + '/api/auth';
+    var TIMEOUT = 5000;
+    
+    function showLoginPrompt() {
+        var guard = document.getElementById('auth-guard');
+        guard.innerHTML = `
+            <div style="text-align:center;padding:40px;background:white;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.08);max-width:400px;">
+                <div style="font-size:48px;margin-bottom:16px;">🔒</div>
+                <h2 style="font-size:20px;color:#1E293B;margin:0 0 8px 0;">请先登录</h2>
+                <p style="font-size:14px;color:#64748B;margin:0 0 24px 0;">访问后台管理需要使用飞书账号登录</p>
+                <button onclick="window.location.href='${API_BASE}/login'" style="display:inline-flex;align-items:center;gap:6px;padding:10px 24px;background:linear-gradient(135deg,#3370ff 0%,#165dff 100%);color:white;border:none;border-radius:9999px;font-size:14px;font-weight:500;cursor:pointer;box-shadow:0 2px 8px rgba(51,112,255,0.3);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    飞书登录
+                </button>
+                <div style="margin-top:16px;">
+                    <a href="index.html" style="font-size:13px;color:#64748B;text-decoration:none;">返回首页</a>
+                </div>
+            </div>
+        `;
+        guard.style.display = 'flex';
+    }
+    
+    function showNoPermission() {
+        var guard = document.getElementById('auth-guard');
+        guard.innerHTML = `
+            <div style="text-align:center;padding:40px;background:white;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.08);max-width:400px;">
+                <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+                <h2 style="font-size:20px;color:#1E293B;margin:0 0 8px 0;">权限不足</h2>
+                <p style="font-size:14px;color:#64748B;margin:0 0 24px 0;">您没有权限访问后台管理页面，请联系管理员获取权限</p>
+                <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;padding:10px 24px;background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:9999px;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;">
+                    返回首页
+                </a>
+            </div>
+        `;
+        guard.style.display = 'flex';
+    }
+    
+    function showAdmin() {
+        document.getElementById('auth-guard').style.display = 'none';
+        document.getElementById('admin-content').style.display = '';
+    }
+    
+    async function checkAuth() {
+        var timeoutPromise = new Promise(function(_, reject) {
+            setTimeout(function() { reject(new Error('Timeout')); }, TIMEOUT);
+        });
+        
+        try {
+            var result = await Promise.race([
+                fetch(API_BASE + '/me', { credentials: 'include' }),
+                timeoutPromise
+            ]);
+            
+            var data = await result.json();
+            
+            if (!data.loggedIn) {
+                showLoginPrompt();
+                return;
+            }
+            
+            if (!data.isAdmin) {
+                showNoPermission();
+                return;
+            }
+            
+            // 验证通过，显示后台内容
+            showAdmin();
+            
+            // 初始化顶部登录状态（如果有容器）
+            if (window.Auth) {
+                Auth.user = data.user;
+                Auth.isAdmin = true;
+            }
+            
+        } catch (error) {
+            console.warn('[Admin-Auth] 权限验证失败:', error.message);
+            // 超时或网络错误，显示登录提示（保守策略）
+            showLoginPrompt();
+        }
+    }
+    
+    // 页面加载时立即执行权限验证
+    checkAuth();
+})();
 </script>
 </body>
 </html>

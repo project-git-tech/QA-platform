@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>欧派家居 - 智能客服指引 [v3-fix]</title>
     
-    <!-- 性能优化：提前建立与Render API的连接 -->
-    <link rel="preconnect" href="https://qa-platform-1-zat2.onrender.com">
-    <link rel="dns-prefetch" href="https://qa-platform-1-zat2.onrender.com">
-    
-    <!-- 引入Google Fonts: Inter -->
+    <!-- 引入配置文件（放在最前面，确保 DATA_BASE 尽早可用） -->
+    <script src="config.js"></script>
+
+    <!-- 预加载静态数据文件（关键性能优化） -->
+    <link rel="preload" href="./data/types.json" as="fetch" crossorigin>
+    <link rel="preload" href="./data/questions.json" as="fetch" crossorigin>
+    <link rel="preload" href="./data/hot.json" as="fetch" crossorigin>
+
+    <!-- 引入Google Fonts: Inter（异步加载，不阻塞渲染） -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- 前后端分离配置 -->
-    <script src="config.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
 
     <style>
         :root {
@@ -1097,10 +1098,7 @@
                 <img src="20260613-010553.jpg" alt="Logo" class="logo-icon">
                 <span class="logo-text">MTDS常见问题自查助手</span>
             </div>
-            <a href="admin.html" class="admin-btn" title="后台管理">
-                <i class="ri-settings-3-line"></i>
-                <span>后台管理</span>
-            </a>
+            <div id="auth-container" style="display:flex;align-items:center;gap:8px;"></div>
         </header>
         
         <!-- Hero Section - Combined Welcome + Search -->
@@ -1176,14 +1174,23 @@
     </main>
 
     <script>
-        // ========== 数据存储模块 ==========
+        // ========== 数据存储模块（优化：提前加载） ==========
         const DataStore = {
             questionTypes: [],
             questions: [],
             hotQuestions: [],
+            loaded: false,
+            loadPromise: null,
             
             async load() {
-                const DATA = window.DATA_BASE || './data';  // 静态数据路径
+                if (this.loadPromise) return this.loadPromise;
+                
+                this.loadPromise = this._doLoad();
+                return this.loadPromise;
+            },
+            
+            async _doLoad() {
+                const DATA = window.DATA_BASE || './data';
 
                 try {
                     const [typesRes, questionsRes, hotRes] = await Promise.all([
@@ -1192,7 +1199,6 @@
                         fetch(DATA + '/hot.json')
                     ]);
 
-                    // 检查是否有请求失败
                     const allOk = typesRes.ok && questionsRes.ok && hotRes.ok;
                     if (!allOk) {
                         throw new Error('部分静态数据文件加载失败');
@@ -1201,6 +1207,7 @@
                     this.questionTypes = await typesRes.json() || [];
                     this.questions = await questionsRes.json() || [];
                     this.hotQuestions = await hotRes.json() || [];
+                    this.loaded = true;
 
                     console.log('[DataStore] 静态数据加载成功', {
                         types: this.questionTypes.length,
@@ -1210,8 +1217,6 @@
 
                 } catch (error) {
                     console.error('[DataStore] 数据加载失败:', error.message);
-
-                    // 静态文件加载失败，使用空数据
                     this.questionTypes = [];
                     this.questions = [];
                     this.hotQuestions = [];
@@ -1570,15 +1575,13 @@
             }
         });
 
-        // Hot question tag click - fill to search and search
+        // Hot question tag click - fill to search and search（优化：数据已加载，无需重复加载）
         document.addEventListener('click', function(e) {
             const hotTag = e.target.closest('.hero-hot-tag');
             if (hotTag) {
                 const title = hotTag.dataset.title || hotTag.textContent;
                 searchInput.value = title;
-                DataStore.load().then(() => {
-                    performSearch(title);
-                });
+                performSearch(title);
             }
         });
 
@@ -1589,12 +1592,20 @@
             searchInput.focus();
         });
 
+        // ========== 数据预加载（关键优化：脚本解析时立即开始，不等 DOMContentLoaded） ==========
+        DataStore.load();
+
         // ========== 初始化 ==========
         document.addEventListener('DOMContentLoaded', function() {
             refreshAllData();
+            // 初始化飞书登录状态（与数据加载并行，带5秒超时降级）
+            if (window.Auth) {
+                Auth.init('auth-container');
+            }
         });
 
 
     </script>
+    <script src="auth.js"></script>
 </body>
 </html>

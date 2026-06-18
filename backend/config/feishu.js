@@ -25,5 +25,11 @@ module.exports = {
   apiBase: 'https://open.feishu.cn/open-apis',
   
   // 服务台会话ID（用于后续跳转功能）
-  serviceDeskChatId: 'oc_bd8493feec04047d8399fe6c103ebc90'
+  serviceDeskChatId: 'oc_bd8493feec04047d8399fe6c103ebc90',
+  
+  // 管理员飞书账号白名单（用户名）
+  // 登录后根据飞书用户名判断是否为管理员
+  adminUsers: [
+    '王西'  // TODO: 替换为实际管理员飞书用户名
+  ]
 };

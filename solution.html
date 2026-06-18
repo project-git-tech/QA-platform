@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MTDS常见问题自查助手 - 解决方案</title>
     
-    <!-- 性能优化：提前建立与Render API的连接 -->
-    <link rel="preconnect" href="https://qa-platform-1-zat2.onrender.com">
-    <link rel="dns-prefetch" href="https://qa-platform-1-zat2.onrender.com">
-    
-    <!-- 引入Google Fonts: Inter -->
+    <!-- 引入配置文件（放在最前面） -->
+    <script src="config.js"></script>
+
+    <!-- 预加载静态数据文件 -->
+    <link rel="preload" href="./data/types.json" as="fetch" crossorigin>
+    <link rel="preload" href="./data/questions.json" as="fetch" crossorigin>
+
+    <!-- 引入Google Fonts: Inter（异步加载） -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- 引入配置文件 -->
-    <script src="config.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     
     <style>
         :root {
@@ -585,9 +585,12 @@
 <body>
     <main class="main-container" role="main">
         <!-- Logo -->
-        <div class="logo">
-            <img src="20260613-010553.jpg" alt="Logo" class="logo-icon">
-            <span class="logo-text">MTDS常见问题自查助手</span>
+        <div class="logo" style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:var(--spacing-md);">
+                <img src="20260613-010553.jpg" alt="Logo" class="logo-icon">
+                <span class="logo-text">MTDS常见问题自查助手</span>
+            </div>
+            <div id="auth-container" style="display:flex;align-items:center;gap:8px;"></div>
         </div>
 
         <!-- Back Links -->
@@ -972,6 +975,14 @@
                     alert('暂未配置服务台链接，请联系管理员。');
                 }
             });
+        });
+    </script>
+    <script src="auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.Auth) {
+                Auth.init('auth-container');
+            }
         });
     </script>
 </body>

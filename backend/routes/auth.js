@@ -131,7 +131,7 @@ router.get('/callback', async (req, res) => {
  * 
  * 前端页面加载时调用，用于显示登录状态
  * 返回值示例：
- *   已登录: { loggedIn: true, user: { name, avatar, email } }
+ *   已登录: { loggedIn: true, user: { name, avatar, email }, isAdmin: true/false }
  *   未登录: { loggedIn: false }
  */
 router.get('/me', (req, res) => {
@@ -150,6 +150,10 @@ router.get('/me', (req, res) => {
       });
     }
     
+    // 判断是否为管理员（根据飞书账号白名单）
+    const adminUsers = feishuConfig.adminUsers || [];
+    const isAdmin = adminUsers.includes(user.name);
+    
     // 返回安全信息（隐藏敏感字段如accessToken）
     const safeUser = {
       name: user.name,
@@ -160,7 +164,8 @@ router.get('/me', (req, res) => {
     
     res.json({
       loggedIn: true,
-      user: safeUser
+      user: safeUser,
+      isAdmin: isAdmin
     });
   } else {
     res.json({
@@ -198,6 +203,39 @@ router.post('/logout', (req, res) => {
       message: '未登录状态' 
     });
   }
+});
+
+/**
+ * API 5: 管理员权限验证
+ * 
+ * 检查当前登录用户是否为管理员（根据飞书账号白名单）
+ * 前端调用：fetch('/api/auth/admin-check')
+ * 返回值示例：
+ *   已登录管理员: { isAdmin: true, user: { name, avatar } }
+ *   已登录非管理员: { isAdmin: false, user: { name, avatar } }
+ *   未登录: { isAdmin: false, message: '未登录' }
+ */
+router.get('/admin-check', (req, res) => {
+  if (!req.session || !req.session.feishuUser) {
+    return res.json({ 
+      isAdmin: false, 
+      message: '未登录' 
+    });
+  }
+  
+  const user = req.session.feishuUser;
+  const adminUsers = feishuConfig.adminUsers || [];
+  const isAdmin = adminUsers.includes(user.name);
+  
+  console.log('[Auth-Admin] 用户', user.name, '管理员验证:', isAdmin ? '通过' : '拒绝');
+  
+  res.json({
+    isAdmin: isAdmin,
+    user: {
+      name: user.name,
+      avatar: user.avatar
+    }
+  });
 });
 
 /**
