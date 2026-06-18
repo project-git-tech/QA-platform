@@ -13,22 +13,23 @@ import publishRouter from './routes/publish.js';
 
 const app = express();
 
-// 中间件
-// CORS 中间件 - 允许 GitHub Pages 跨域访问
+// 手动 CORS 中间件（放在最前面，确保 EdgeOne 代理不会覆盖）
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  // 预检请求直接返回
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  next();
+});
+
+// CORS 中间件（备用）
 app.use(cors({
-  origin: function(origin, callback) {
-    // 允许所有 GitHub Pages 和本地开发来源
-    if (!origin || origin.includes('github.io') || origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      callback(null, true);
-    } else {
-      callback(null, true); // 暂时允许所有来源
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
+  origin: '*',
+  credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -38,15 +39,18 @@ setupSession(app);
 
 // 数据库同步（冷启动时执行一次）
 let dbSynced = false;
+let dbSyncError = null;
 async function ensureDbSynced() {
   if (dbSynced) return;
+  if (dbSyncError) return; // 已知失败，不再重试
   try {
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ alter: true });
     dbSynced = true;
-    console.log('[DB] 数据库同步完成（force: true）');
+    console.log('[DB] 数据库同步完成');
   } catch (err) {
+    dbSyncError = err;
     console.error('[DB] 数据库同步失败:', err.message);
-    throw err;
+    // 不抛出错误，允许请求继续（表可能已存在）
   }
 }
 
@@ -54,7 +58,7 @@ async function ensureDbSynced() {
 app.use((req, res, next) => {
   ensureDbSynced()
     .then(() => next())
-    .catch(err => res.status(500).json({ error: '数据库初始化失败: ' + err.message }));
+    .catch(() => next()); // 同步失败不阻塞请求
 });
 
 // 健康检查

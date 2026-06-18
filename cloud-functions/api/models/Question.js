@@ -17,8 +17,9 @@ export default sequelize => {
     },
     typeId: {
       type: Sequelize.INTEGER,
-      allowNull: false,
-      field: 'type_id'
+      allowNull: true,
+      field: 'type_id',
+      defaultValue: null
     },
     order: {
       type: Sequelize.INTEGER,
