@@ -47,6 +47,18 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// 环境变量诊断（调试用，上线前删除）
+app.get('/debug/env', (req, res) => {
+  const dbUrl = process.env.DATABASE_URL;
+  res.json({
+    hasDatabaseUrl: !!dbUrl,
+    databaseUrlPrefix: dbUrl ? dbUrl.split('@')[1]?.split('/')[0] : null,
+    hasGithubToken: !!process.env.GITHUB_TOKEN,
+    hasSessionSecret: !!process.env.SESSION_SECRET,
+    nodeEnv: process.env.NODE_ENV || 'undefined'
+  });
+});
+
 // API 路由（EdgeOne 的 cloud-functions/api/ 目录已提供 /api/ 前缀，这里不需要再加）
 app.use('/auth', authRouter);
 app.use('/types', typesRouter);
