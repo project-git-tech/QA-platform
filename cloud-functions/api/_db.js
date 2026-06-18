@@ -1,5 +1,9 @@
 import { Sequelize } from 'sequelize';
 import pg from 'pg';
+import dns from 'dns';
+
+// 强制 Node.js DNS 优先使用 IPv4（EdgeOne 不支持 IPv6）
+dns.setDefaultResultOrder('ipv4first');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
@@ -14,8 +18,7 @@ const sequelize = new Sequelize(DATABASE_URL || 'postgres://localhost:5432/qaui'
     ssl: {
       require: true,
       rejectUnauthorized: false
-    },
-    family: 4  // 强制使用 IPv4（EdgeOne 不支持 IPv6）
+    }
   },
   logging: false,
   pool: { max: 5, min: 0, acquire: 30000, idle: 10000 }
