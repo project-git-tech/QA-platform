@@ -14,9 +14,21 @@ import publishRouter from './routes/publish.js';
 const app = express();
 
 // 中间件
+// CORS 中间件 - 允许 GitHub Pages 跨域访问
 app.use(cors({
-  origin: ['https://project-git-tech.github.io', 'http://localhost:3000', 'http://127.0.0.1:3000'],
-  credentials: true
+  origin: function(origin, callback) {
+    // 允许所有 GitHub Pages 和本地开发来源
+    if (!origin || origin.includes('github.io') || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      callback(null, true);
+    } else {
+      callback(null, true); // 暂时允许所有来源
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
