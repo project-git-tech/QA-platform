@@ -29,7 +29,7 @@ let dbSynced = false;
 async function ensureDbSynced() {
   if (dbSynced) return;
   try {
-    await sequelize.sync({ force: false });
+    await sequelize.sync({ alter: true });
     dbSynced = true;
     console.log('[DB] 数据库同步完成');
   } catch (err) {
