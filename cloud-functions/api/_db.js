@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import pg from 'pg';
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
@@ -8,6 +9,7 @@ if (!DATABASE_URL) {
 
 const sequelize = new Sequelize(DATABASE_URL || 'postgres://localhost:5432/qaui', {
   dialect: 'postgres',
+  dialectModule: pg,
   dialectOptions: {
     ssl: {
       require: true,
