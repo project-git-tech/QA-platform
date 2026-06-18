@@ -1,16 +1,15 @@
 /**
  * 前端配置文件
- * 静态数据从同源 data/ 目录读取
- * EdgeOne Pages 同源部署，API 走相对路径
+ * 双平台架构：
+ *   前端静态页面 → GitHub Pages
+ *   后端 API → EdgeOne Pages
  */
 
-// 静态数据路径（同源）
+// 静态数据路径（同源，GitHub Pages）
 const DATA_BASE = './data';
 
-// 后端 API 地址
-// EdgeOne Pages 同源部署：前端和 API 在同一域名下，使用相对路径
-// 本地开发：后端在 localhost:3000，也使用相对路径
-const API_BASE = '';
+// 后端 API 地址（EdgeOne Pages）
+const API_BASE = 'https://qa-platform-x2ufkzoj.edgeone.cool/api';
 
 // 导出配置（供其他脚本使用）
 window.DATA_BASE = DATA_BASE;

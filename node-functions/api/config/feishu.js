@@ -10,7 +10,7 @@ export default {
   appSecret: process.env.FEISHU_APP_SECRET || 'kWA7iAA4KPzu0UKjKyDi5e1S0yzfvLQR',
 
   // OAuth 回调地址（必须与飞书平台配置一致）
-  redirectUri: process.env.FEISHU_REDIRECT_URI || 'https://qa-platform-dpd6byolbe9l.edgeone.cool/api/auth/callback',
+  redirectUri: process.env.FEISHU_REDIRECT_URI || 'https://qa-platform-x2ufkzoj.edgeone.cool/api/auth/callback',
 
   // 飞书 API 基础地址
   apiBase: 'https://open.feishu.cn/open-apis',
