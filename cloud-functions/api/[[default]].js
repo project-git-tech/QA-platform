@@ -29,17 +29,20 @@ let dbSynced = false;
 async function ensureDbSynced() {
   if (dbSynced) return;
   try {
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
     dbSynced = true;
-    console.log('[DB] 数据库同步完成');
+    console.log('[DB] 数据库同步完成（force: true）');
   } catch (err) {
     console.error('[DB] 数据库同步失败:', err.message);
+    throw err;
   }
 }
 
 // 在每个请求前确保数据库已同步
 app.use((req, res, next) => {
-  ensureDbSynced().then(next);
+  ensureDbSynced()
+    .then(() => next())
+    .catch(err => res.status(500).json({ error: '数据库初始化失败: ' + err.message }));
 });
 
 // 健康检查
