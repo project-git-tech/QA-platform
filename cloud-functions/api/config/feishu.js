@@ -6,8 +6,8 @@
  */
 module.exports = {
   // 飞书应用凭证
-  appId: process.env.FEISHU_APP_ID || 'cli_a97ad490803d5bd3',
-  appSecret: process.env.FEISHU_APP_SECRET || 'VKNVjpMx55RfzdinjuH07dBt6KByJqW8',
+  appId: process.env.FEISHU_APP_ID || 'cli_a97b5f31a3785ceb',
+  appSecret: process.env.FEISHU_APP_SECRET || 'kWA7iAA4KPzu0UKjKyDi5e1S0yzfvLQR',
 
   // OAuth 回调地址（必须与飞书平台配置一致）
   // EdgeOne 部署后请更新为实际域名
